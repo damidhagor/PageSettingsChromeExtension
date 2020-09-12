@@ -1,11 +1,38 @@
+<!DOCTYPE html>
 <html>
-    <head>
-        <link rel="stylesheet" type="text/css" href="popup.css" />
-        <script src="popup.js"></script>
-    </head>
 
-    <body>
-        <button id="hideHeaderBtn">Hide Header</button>
-        <button id="showHeaderBtn">Show Header</button>
-    </body>
+<head>
+    <link rel="stylesheet" type="text/css" href="popup.css" />
+    <script src="popup.js"></script>
+</head>
+
+<body>
+    <!-- <div class="toggle-option">
+        <label class="toggle">
+            <input id="enableCbx" type="checkbox" />
+            <span class="toggle-slider"></span>
+        </label>
+        <label for="headerCbx" id="cBxLabel"></span>
+    </div> -->
+
+    <label class="toggle-option">
+        <input id="isEnabledCbx" class="toggle-combobox" type="checkbox" />
+        <svg class="toggle-switch vertical-middle" width="4em" height="2em" viewbox="0 0 30 10"
+            preserveAspectRatio="xMidYMid meet">
+            <rect class="toggle-switch-1" x="3" y="3" rx="2" width="24" height="4" />
+            <circle class="toggle-switch-2" cx="5" cy="5" r="5" />
+        </svg>
+        <span id="isEnabledText" class="toggle-text vertical-middle">enable</span>
+    </label>
+
+    <h3>HTML Elements</h3>
+    <textarea id="elementsTa" class="textbox"></textarea>
+
+
+    <h3>Class Names</h3>
+    <textarea id="classesTa" class="textbox"></textarea>
+
+    <button id="saveBtn">Save settings for page</button>
+</body>
+
 </html>
