@@ -1,5 +1,6 @@
 var activeTabId;
 var activeTabUrl;
+var activeTabHostname
 
 chrome.runtime.onInstalled.addListener(function () {
     updateBrowserActionIcons();
@@ -8,6 +9,7 @@ chrome.runtime.onInstalled.addListener(function () {
         console.log(tabs);
         activeTabId = tabs[0].id;
         activeTabUrl = tabs[0].url != undefined ? tabs[0].url : tabs[0].pendingUrl;
+        activeTabHostname = activeTabUrl != undefined ? new URL(activeTabUrl).hostname : undefined;
 
         console.log(activeTabId);
         console.log(activeTabUrl);
@@ -22,6 +24,11 @@ chrome.runtime.onStartup.addListener(function () {
         console.log(tabs);
         activeTabId = tabs[0].id;
         activeTabUrl = tabs[0].url != undefined ? tabs[0].url : tabs[0].pendingUrl;
+        try {
+            activeTabHostname = activeTabUrl ? new URL(activeTabUrl).hostname : undefined;
+        } catch (e) {
+            log.console(e.message);
+        }
 
         console.log(activeTabId);
         console.log(activeTabUrl);
@@ -34,6 +41,11 @@ chrome.tabs.onActivated.addListener(function (activeInfo) {
 
     chrome.tabs.get(activeTabId, function (tab) {
         activeTabUrl = tab.url != undefined ? tab.url : tab.pendingUrl;
+        try {
+            activeTabHostname = activeTabUrl ? new URL(activeTabUrl).hostname : undefined;
+        } catch (e) {
+            log.console(e.message);
+        }
     });
 
     console.log("Active tab changed: " + activeTabId + ", " + activeTabUrl);
@@ -43,8 +55,10 @@ chrome.tabs.onActivated.addListener(function (activeInfo) {
 
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     if (tabId == activeTabId) {
-        if (changeInfo.url != undefined)
+        if (changeInfo.url != undefined) {
             activeTabUrl = changeInfo.url;
+            activeTabHostname = activeTabUrl != undefined ? new URL(activeTabUrl).hostname : undefined;
+        }
 
         console.log("Active tab updated: ", activeTabId + ", " + activeTabUrl);
         updateBrowserActionState(activeTabId);
@@ -53,8 +67,8 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-    if (request.updateTheme == true)
-        updateBrowserActionIcons();
+    if (request.topic == "getActiveTabInfo")
+        sendResponse({ activeTabId: activeTabId, activeTabUrl: activeTabUrl, activeTabHostname: activeTabHostname });
 });
 
 

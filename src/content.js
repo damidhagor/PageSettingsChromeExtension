@@ -33,6 +33,12 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     else if (request.getSettings == true) {
         sendResponse(settings);
     }
+    else if(request.topic == "getScroll"){
+        sendResponse({scrollX:window.scrollX,scrollY:window.scrollY});
+    }
+    else if(request.topic == "setScroll"){
+        window.scroll(request.scrollX, request.scrollY);
+    }
     else {
         sendResponse({ status: false });
     }
