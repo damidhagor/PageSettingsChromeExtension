@@ -3,36 +3,30 @@
 
 <head>
     <link rel="stylesheet" type="text/css" href="popup.css" />
+    <script src="lib/jquery-3.5.1.min.js"></script>
     <script src="popup.js"></script>
 </head>
 
 <body>
-    <!-- <label class="toggle-option">
-        <input id="isEnabledCbx" class="toggle-combobox" type="checkbox" />
-        <svg class="toggle-switch vertical-middle" width="4em" height="2em" viewbox="0 0 30 10"
-            preserveAspectRatio="xMidYMid meet">
-            <rect class="toggle-switch-1" x="3" y="3" rx="2" width="24" height="4" />
-            <circle class="toggle-switch-2" cx="5" cy="5" r="5" />
-        </svg>
-        <span id="isEnabledText" class="toggle-text vertical-middle">enable</span>
-    </label> -->
-
     <h3 id="hostheader"></h3>
 
     <fieldset>
         <legend>Settings</legend>
 
         <p>
-            <b>Zoom: </b>
-            <input id="zoomTb" type="text"/>
-            %
-        </p>
-    
-        <p>
-            <b>Scroll X: </b>
-            <input id="scrollXTb" type="text"/>
-            <b>Scroll Y: </b>
-            <input id="scrollYTb" type="text"/>
+            <div>
+                <b>Zoom: </b>
+                <input id="zoomTb" type="text"/>
+                %
+            </div>
+            <div>
+                <b>Scroll X: </b>
+                <input id="scrollXTb" type="text"/>
+            </div>
+            <div>
+                <b>Scroll Y: </b>
+                <input id="scrollYTb" type="text"/>
+            </div>
         </p>
 
         <p id="statusLbl"></p>
@@ -49,30 +43,5 @@
         <button id="setBtn">Set</button>
         <button id="resetBtn">Reset</button>
     </p>
-
-    <!-- <fieldset>
-        <legend>Saved Settings</legend>
-        
-        <p>
-            <b>Zoom: </b>
-            <div id="savedZoom"></div>
-        </p>
-    
-        <p>
-            <b>Scroll X: </b>
-            <div id="savedScrollX"></div>
-        </p>
-        <p>
-            <b>Scroll Y: </b>
-            <div id="savedScrollY"></div>
-        </p>
-
-        <p>
-            <button id="loadBtn">Load</button>
-            <button id="saveBtn">Save</button>
-            <button id="clearBtn">Clear</button>
-        </p>
-    </fieldset> -->
 </body>
-
 </html>

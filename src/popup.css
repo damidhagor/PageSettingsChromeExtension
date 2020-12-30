@@ -14,46 +14,14 @@ body {
     color: var(--text-color);
 }
 
-.vertical-middle {
-    vertical-align: middle;
+.statusLbl-unsaved {
+    color: red;
 }
 
-.toggle-option {
-    cursor: pointer;
+.statusLbl-saved {
+    color: green;
 }
 
-.toggle-combobox {
-    display: none;
-}
-
-.toggle-switch-1 {
-    fill: var(--disabled-color);
-    transition: .1s;
-}
-
-.toggle-switch-2 {
-    fill: var(--accent-color);
-    transition: .1s;
-}
-
-.toggle-combobox:checked~.toggle-switch .toggle-switch-2 {
-    transform: translateX(20px);
-}
-
-.toggle-combobox:checked~.toggle-switch .toggle-switch-1 {
-    fill: var(--accent-color);
-}
-
-.textbox-header {
-    margin-bottom: 0px;
-}
-
-.textbox {
-    width: 230px;
-    height: 100px;
-    display: block;
-    resize: none;
-    white-space: nowrap;
-    background-color: var(--background-color);
-    color: var(--text-color);
+.statusLbl-changed {
+    color: orange;
 }

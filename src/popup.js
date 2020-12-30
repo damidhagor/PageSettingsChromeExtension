@@ -3,19 +3,6 @@ const SettingsStatusEnum = Object.freeze({ "unsaved": 0, "saved": 1, "changed": 
 var activeTabId = null;
 var activeTabHostname = null;
 
-var hostheader = null;
-var zoomTb = null;
-var scrollXTb = null;
-var scrollYTb = null;
-var statusLbl = null;
-
-var loadBtn = null;
-var saveBtn = null;
-var clearBtn = null;
-var getBtn = null;
-var setBtn = null;
-var resetBtn = null;
-
 var settings =
 {
     zoomFactor: undefined,
@@ -26,28 +13,15 @@ var settingsStatus = undefined;
 
 
 document.addEventListener("DOMContentLoaded", function () {
-    hostheader = document.getElementById("hostheader");
-    zoomTb = document.getElementById("zoomTb");
-    scrollXTb = document.getElementById("scrollXTb");
-    scrollYTb = document.getElementById("scrollYTb");
-    statusLbl = document.getElementById("statusLbl");
-    loadBtn = document.getElementById("loadBtn");
-    saveBtn = document.getElementById("saveBtn");
-    clearBtn = document.getElementById("clearBtn");
-    getBtn = document.getElementById("getBtn");
-    setBtn = document.getElementById("setBtn");
-    resetBtn = document.getElementById("resetBtn");
-
-    zoomTb.addEventListener("input", tb_input);
-    scrollXTb.addEventListener("input", tb_input);
-    scrollYTb.addEventListener("input", tb_input);
-
-    loadBtn.addEventListener("click", loadBtn_click);
-    saveBtn.addEventListener("click", saveBtn_click);
-    clearBtn.addEventListener("click", clearBtn_click);
-    getBtn.addEventListener("click", getBtn_click);
-    setBtn.addEventListener("click", setBtn_click);
-    resetBtn.addEventListener("click", resetBtn_click);
+    $("#zoomTb").on("input", tb_input);
+    $("#scrollXTb").on("input", tb_input);
+    $("#scrollYTb").on("input", tb_input);
+    $("#loadBtn").click(loadBtn_click);
+    $("#saveBtn").click(saveBtn_click);
+    $("#clearBtn").click(clearBtn_click);
+    $("#getBtn").click(getBtn_click);
+    $("#setBtn").click(setBtn_click);
+    $("#resetBtn").click(resetBtn_click);
 
     chrome.runtime.onMessage.addListener(onMessage);
 
@@ -69,21 +43,7 @@ function onMessage(request, sender, sendResponse) {
 
 
 function tb_input() {
-    let saved = settingsStatus == SettingsStatusEnum.saved || settingsStatus == SettingsStatusEnum.changed;
-    let changed = false;
-    if (zoomTb.value / 100 != settings.zoomFactor
-        || scrollXTb.value != settings.scrollX
-        || scrollYTb.value != settings.scrollY)
-        changed = true;
-
-    if (saved && changed)
-        settingsStatus = SettingsStatusEnum.changed;
-    else if (saved && !changed)
-        settingsStatus = SettingsStatusEnum.saved;
-    else
-        settingsStatus = SettingsStatusEnum.unsaved
-
-    updateSettingsStatus();
+    updateStatusLbl();
 }
 
 function loadBtn_click() {
@@ -195,34 +155,49 @@ function getActiveTabInfo() {
 
 
 function getSettingsFromUI() {
-    settings.zoomFactor = zoomTb.value / 100;
-    settings.scrollX = scrollXTb.value;
-    settings.scrollY = scrollYTb.value;
+    settings.zoomFactor = $("#zoomTb").val() / 100;
+    settings.scrollX = $("#scrollXTb").val();
+    settings.scrollY = $("#scrollYTb").val();
 }
 
 function setSettingsToUI() {
-    hostheader.innerText = "Website " + activeTabHostname;
-    zoomTb.value = isNaN(settings.zoomFactor) || settings.zoomFactor == null ? "-" : settings.zoomFactor * 100;
-    scrollXTb.value = isNaN(settings.scrollX) || settings.scrollX == null ? "-" : settings.scrollX;
-    scrollYTb.value = isNaN(settings.scrollY) || settings.scrollY == null ? "-" : settings.scrollY;
-    updateSettingsStatus();
+    updateStatusLbl();
+    $("#hostheader.innerText").val("Website " + activeTabHostname);
+    $("#zoomTb").val(isNaN(settings.zoomFactor) || settings.zoomFactor == null ? "-" : settings.zoomFactor * 100);
+    $("#scrollXTb").val(isNaN(settings.scrollX) || settings.scrollX == null ? "-" : settings.scrollX);
+    $("#scrollYTb").val(isNaN(settings.scrollY) || settings.scrollY == null ? "-" : settings.scrollY);
 }
 
-function updateSettingsStatus() {
+function updateStatusLbl() {
+    let saved = settingsStatus == SettingsStatusEnum.saved || settingsStatus == SettingsStatusEnum.changed;
+    let changed = false;
+    if ($("#zoomTb").val() / 100 != settings.zoomFactor
+        || $("#scrollXTb").val() != settings.scrollX
+        || $("#scrollYTb").val() != settings.scrollY)
+        changed = true;
+
+    if (saved && changed)
+        settingsStatus = SettingsStatusEnum.changed;
+    else if (saved && !changed)
+        settingsStatus = SettingsStatusEnum.saved;
+    else
+        settingsStatus = SettingsStatusEnum.unsaved
+
+
+    $("#statusLbl").removeClass("statusLbl-unsaved statusLbl-saved statusLbl-changed");
     if (settingsStatus == SettingsStatusEnum.unsaved) {
-        statusLbl.style.color = "red";
+        $("#statusLbl").addClass("statusLbl-unsaved");
         statusLbl.innerText = "Unsaved";
     }
     else if (settingsStatus == SettingsStatusEnum.saved) {
-        statusLbl.style.color = "green";
+        $("#statusLbl").addClass("statusLbl-saved");
         statusLbl.innerText = "Saved";
     }
     else if (settingsStatus == SettingsStatusEnum.changed) {
-        statusLbl.style.color = "orange";
+        $("#statusLbl").addClass("statusLbl-changed");
         statusLbl.innerText = "Changed";
     }
     else {
-        statusLbl.style.color = "white";
         statusLbl.innerText = "";
     }
 }
