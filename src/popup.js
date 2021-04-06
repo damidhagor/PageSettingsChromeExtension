@@ -7,7 +7,8 @@ var settings =
 {
     zoomFactor: undefined,
     scrollX: undefined,
-    scrollY: undefined
+    scrollY: undefined,
+    elements: undefined
 }
 var settingsStatus = undefined;
 
@@ -16,12 +17,14 @@ document.addEventListener("DOMContentLoaded", function () {
     $("#zoomTb").on("input", tb_input);
     $("#scrollXTb").on("input", tb_input);
     $("#scrollYTb").on("input", tb_input);
+    $("#elementsTb").on("input", tb_input);
     $("#loadBtn").click(loadBtn_click);
     $("#saveBtn").click(saveBtn_click);
     $("#clearBtn").click(clearBtn_click);
     $("#getBtn").click(getBtn_click);
     $("#setBtn").click(setBtn_click);
     $("#resetBtn").click(resetBtn_click);
+    $("#hideCbx").click(hideCbx_click);
 
     chrome.runtime.onMessage.addListener(onMessage);
 
@@ -35,6 +38,11 @@ function onMessage(request, sender, sendResponse) {
         applySettingsToUI();
     }
     else if (request.topic == "getScroll") {
+        settings.scrollX = request.scrollX;
+        settings.scrollY = request.scrollY;
+        applySettingsToUI();
+    }
+    else if (request.topic == "getElements") {
         settings.scrollX = request.scrollX;
         settings.scrollY = request.scrollY;
         applySettingsToUI();
@@ -71,15 +79,25 @@ function resetBtn_click() {
     resetPage();
 }
 
+function hideCbx_click() {
+    let hide = this.checked;
+
+    chrome.tabs.sendMessage(activeTabId, { topic: "setElementsState", hide: hide }, function (response) {
+        if (chrome.runtime.lastError)
+            return;
+    })
+}
+
 
 function loadFromStorage() {
-    chrome.storage.sync.get({ [activeTabHostname]: { zoomFactor: undefined, scrollX: undefined, scrollY: undefined } }, function (result) {
+    chrome.storage.sync.get({ [activeTabHostname]: { zoomFactor: undefined, scrollX: undefined, scrollY: undefined, elements: undefined } }, function (result) {
         if (chrome.runtime.lastError)
             return;
 
         settings = result[activeTabHostname];
         settingsStatus = settings.zoomFactor == undefined ? SettingsStatusEnum.unsaved : SettingsStatusEnum.saved;
         setSettingsToUI();
+        updateStatusLbl();
     });
 }
 
@@ -117,7 +135,14 @@ function getFromPage() {
 
             settings.scrollX = response.scrollX;
             settings.scrollY = response.scrollY;
-            setSettingsToUI();
+
+            chrome.tabs.sendMessage(activeTabId, { topic: "getElements" }, function (response) {
+                if (chrome.runtime.lastError)
+                    return;
+
+                settings.elements = response.elements;
+                setSettingsToUI();
+            });
         });
     })
 }
@@ -132,6 +157,19 @@ function setToPage() {
         chrome.tabs.sendMessage(activeTabId, { topic: "setScroll", scrollX: settings.scrollX, scrollY: settings.scrollY }, function (response) {
             if (chrome.runtime.lastError)
                 return;
+
+            chrome.tabs.sendMessage(activeTabId, { topic: "setElements", elements: settings.elements }, function (response) {
+                if (chrome.runtime.lastError)
+                    return;
+
+                chrome.tabs.sendMessage(activeTabId, { topic: "setElementsState", hide: true }, function (response) {
+                    if (chrome.runtime.lastError)
+                        return;
+
+                    let cbx = $("#hideCbx");
+                    $("#hideCbx").prop('checked', true);
+                })
+            })
         })
     })
 }
@@ -158,6 +196,7 @@ function getSettingsFromUI() {
     settings.zoomFactor = $("#zoomTb").val() / 100;
     settings.scrollX = $("#scrollXTb").val();
     settings.scrollY = $("#scrollYTb").val();
+    settings.elements = $("#elementsTb").val();
 }
 
 function setSettingsToUI() {
@@ -166,6 +205,7 @@ function setSettingsToUI() {
     $("#zoomTb").val(isNaN(settings.zoomFactor) || settings.zoomFactor == null ? "-" : settings.zoomFactor * 100);
     $("#scrollXTb").val(isNaN(settings.scrollX) || settings.scrollX == null ? "-" : settings.scrollX);
     $("#scrollYTb").val(isNaN(settings.scrollY) || settings.scrollY == null ? "-" : settings.scrollY);
+    $("#elementsTb").val(settings.elements);
 }
 
 function updateStatusLbl() {
@@ -173,7 +213,8 @@ function updateStatusLbl() {
     let changed = false;
     if ($("#zoomTb").val() / 100 != settings.zoomFactor
         || $("#scrollXTb").val() != settings.scrollX
-        || $("#scrollYTb").val() != settings.scrollY)
+        || $("#scrollYTb").val() != settings.scrollY
+        || $("#elementsTb").val() != settings.elements)
         changed = true;
 
     if (saved && changed)
@@ -206,7 +247,8 @@ function resetSettings() {
     settings = {
         zoomFactor: 1.0,
         scrollX: 0.0,
-        scrollY: 0.0
+        scrollY: 0.0,
+        elements: ""
     };
 
     setSettingsToUI();

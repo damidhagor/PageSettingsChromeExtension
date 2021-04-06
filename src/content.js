@@ -1,79 +1,56 @@
+var hostname = undefined;
+var elementsString = undefined;
 var hiddenElements;
-
-// SETTINGS
-var settings =
-{
-    hostname: undefined,
-    isEnabled: false,
-    elements: undefined,
-    classes: undefined
-};
-
-
-window.addEventListener("load", function (event) {
-    settings.hostname = window.location.hostname;
-    loadExtensionSettings();
-});
-
 
 
 window.matchMedia('(prefers-color-scheme: dark)').addListener(({ matches }) => {
     chrome.runtime.sendMessage({ updateTheme: true });
 });
 
+window.addEventListener("load", function (event) {
+    hostname = window.location.hostname;
+    console.log("RemoveDOMElementsBrowserExtension loaded for " + hostname + "!");
+});
+
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (request.getStatus == true) {
         sendResponse({ status: true });
     }
-    else if (request.sendSettings == true) {
-        settings = request.settings;
-        applySettings();
+    else if (request.topic == "getScroll") {
+        sendResponse({ scrollX: window.scrollX, scrollY: window.scrollY });
+    }
+    else if (request.topic == "setScroll") {
+        window.scroll(request.scrollX, request.scrollY);
         sendResponse({ status: true });
     }
-    else if (request.getSettings == true) {
-        sendResponse(settings);
+    else if (request.topic == "getElements") {
+        sendResponse({ elements: elementsString });
     }
-    else if(request.topic == "getScroll"){
-        sendResponse({scrollX:window.scrollX,scrollY:window.scrollY});
+    else if (request.topic == "setElements") {
+        elementsString = request.elements;
+        sendResponse({ status: true });
     }
-    else if(request.topic == "setScroll"){
-        window.scroll(request.scrollX, request.scrollY);
+    else if (request.topic == "setElementsState") {
+        if (request.hide)
+            hideElements();
+        else
+            showElements();
+        sendResponse({ status: true });
     }
     else {
         sendResponse({ status: false });
     }
 });
 
-
-function loadExtensionSettings() {
-    chrome.storage.sync.get({
-        autoApplyWebsitesList: []
-    }, function (items) {
-        if (items.autoApplyWebsitesList.includes(window.location.hostname))
-            autoApplySettings();
-    });
-}
-
-
-
-function applySettings() {
-    showElements();
-    if (settings.isEnabled == true)
-        hideElements();
+function showElements() {
+    if (hiddenElements)
+        hiddenElements.show();
 }
 
 function hideElements() {
-    let query = undefined;
-    let elementQuery = undefined;
-    let classQuery = undefined;
+    showElements();
 
-    console.log(settings);
-
-    if (settings.elements && settings.elements.length > 0)
-        query = settings.elements.join(",");
-    if (settings.classes && settings.classes.length > 0)
-        query = query == undefined ? settings.classes.join(",")
-            : query + "," + settings.classes.join(",");
+    let query = elementsString;
 
     console.log("Hide query: " + query);
 
@@ -84,9 +61,4 @@ function hideElements() {
     }
 
     console.log("Hidden elements: ", hiddenElements);
-}
-
-function showElements() {
-    if (hiddenElements)
-        hiddenElements.show();
 }
