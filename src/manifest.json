@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
-  "name": "Remove DOM Elements",
+  "name": "Page Settings",
   "version": "1.0",
-  "description": "Removes elements from a webpage.",
+  "description": "Stores/Reloads page's zoom & scroll values and also a jquery query string which hides elements on the page.",
   "icons": {
     "16": "images/icon16.png",
     "32": "images/icon32.png",
