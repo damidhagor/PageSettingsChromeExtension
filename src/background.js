@@ -2,39 +2,32 @@ var activeTabId;
 var activeTabUrl;
 var activeTabHostname
 
-chrome.runtime.onInstalled.addListener(function () {
-    updateBrowserActionIcons();
 
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-        console.log(tabs);
-        activeTabId = tabs[0].id;
-        activeTabUrl = tabs[0].url != undefined ? tabs[0].url : tabs[0].pendingUrl;
-        activeTabHostname = activeTabUrl != undefined ? new URL(activeTabUrl).hostname : undefined;
-
-        console.log(activeTabId);
-        console.log(activeTabUrl);
-        updateBrowserActionState(activeTabId);
-    });
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+    if (request.topic == "getActiveTabInfo")
+        sendResponse({ activeTabId: activeTabId, activeTabUrl: activeTabUrl, activeTabHostname: activeTabHostname });
 });
 
-chrome.runtime.onStartup.addListener(function () {
-    updateBrowserActionIcons();
-
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-        console.log(tabs);
-        activeTabId = tabs[0].id;
-        activeTabUrl = tabs[0].url != undefined ? tabs[0].url : tabs[0].pendingUrl;
-        try {
-            activeTabHostname = activeTabUrl ? new URL(activeTabUrl).hostname : undefined;
-        } catch (e) {
-            log.console(e.message);
-        }
-
-        console.log(activeTabId);
-        console.log(activeTabUrl);
-        updateBrowserActionState(activeTabId);
-    });
+chrome.commands.onCommand.addListener(function (command) {
+    console.log('Command:', command);
+    if (command == "get-from-page") {
+        invokeGetFromPage();
+    }
+    else if (command == "set-to-page") {
+        invokeSetToPage();
+    } else if (command == "load-apply") {
+        loadSettingsFromStorage(activeTabHostname, function (settings) {
+            setSettingsToPage(activeTabId, settings, function () { });
+        });
+    }
+    else if (command == "toggle-elements") {
+        toggleElementsStateOnPage(activeTabId, function () { });
+    }
 });
+
+chrome.runtime.onInstalled.addListener(initialize);
+
+chrome.runtime.onStartup.addListener(initialize);
 
 chrome.tabs.onActivated.addListener(function (activeInfo) {
     activeTabId = activeInfo.tabId;
@@ -66,12 +59,24 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 });
 
 
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-    if (request.topic == "getActiveTabInfo")
-        sendResponse({ activeTabId: activeTabId, activeTabUrl: activeTabUrl, activeTabHostname: activeTabHostname });
-});
+function initialize() {
+    updateBrowserActionIcons();
 
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+        console.log(tabs);
+        activeTabId = tabs[0].id;
+        activeTabUrl = tabs[0].url != undefined ? tabs[0].url : tabs[0].pendingUrl;
+        try {
+            activeTabHostname = activeTabUrl ? new URL(activeTabUrl).hostname : undefined;
+        } catch (e) {
+            log.console(e.message);
+        }
 
+        console.log(activeTabId);
+        console.log(activeTabUrl);
+        updateBrowserActionState(activeTabId);
+    });
+}
 
 function updateBrowserActionState(tabId) {
     chrome.tabs.sendMessage(tabId, { getStatus: true }, function (response) {
@@ -116,4 +121,23 @@ function updateBrowserActionIcons() {
             }
         });
     }
+}
+
+
+function invokeGetFromPage(k) {
+    chrome.runtime.sendMessage({ topic: "getFromPage" }, function (response) {
+        if (chrome.runtime.lastError) {
+            console.log("Error invoking getting from page: " + chrome.runtime.lastError.message);
+            return;
+        }
+    });
+}
+
+function invokeSetToPage(k) {
+    chrome.runtime.sendMessage({ topic: "setToPage" }, function (response) {
+        if (chrome.runtime.lastError) {
+            console.log("Error invoking setting from page: " + chrome.runtime.lastError.message);
+            return;
+        }
+    });
 }

@@ -20,6 +20,7 @@
   },
   "background": {
     "scripts": [
+      "functions.js",
       "background.js"
     ],
     "persistent": false
@@ -31,6 +32,7 @@
         "https://*/*"
       ],
       "js": [
+        "functions.js",
         "content.js",
         "lib/jquery-3.5.1.min.js"
       ]
@@ -41,5 +43,19 @@
   "permissions": [
     "storage",
     "tabs"
-  ]
+  ],
+  "commands": {
+    "load-apply": {
+      "description": "Load & apply page settings"
+    },
+    "get-from-page": {
+      "description": "Get current page settings"
+    },
+    "set-to-page": {
+      "description": "Apply settings"
+    },
+    "toggle-elements": {
+      "description": "Toogle hiding of elements"
+    }
+  }
 }

@@ -6,12 +6,17 @@
 }
 
 html {
-    width: 250px;
+    /* width: 250px; */
+    width: 16em;
 }
 
 body {
     background-color: var(--background-color);
     color: var(--text-color);
+}
+
+.data-button {
+    width: 5.8em;
 }
 
 .statusLbl-unsaved {

@@ -8,7 +8,8 @@ var settings =
     zoomFactor: undefined,
     scrollX: undefined,
     scrollY: undefined,
-    elements: undefined
+    elements: undefined,
+    elementsHidden: false
 }
 var settingsStatus = undefined;
 
@@ -28,24 +29,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
     chrome.runtime.onMessage.addListener(onMessage);
 
-    getActiveTabInfo();
+    getActiveTabInfo(function (tabId, hostname) {
+        activeTabId = tabId;
+        activeTabHostname = hostname;
+        loadSettings();
+    });
 });
 
 
 function onMessage(request, sender, sendResponse) {
-    if (request.topic == "getZoom") {
-        settings.zoomFactor = request.zoom;
-        applySettingsToUI();
+    if (request.topic == "getFromPage") {
+        getFromPage();
+        sendResponse({ state: true });
     }
-    else if (request.topic == "getScroll") {
-        settings.scrollX = request.scrollX;
-        settings.scrollY = request.scrollY;
-        applySettingsToUI();
-    }
-    else if (request.topic == "getElements") {
-        settings.scrollX = request.scrollX;
-        settings.scrollY = request.scrollY;
-        applySettingsToUI();
+    else if (request.topic == "setToPage") {
+        setToPage();
+        sendResponse({ state: true });
     }
 }
 
@@ -55,16 +54,16 @@ function tb_input() {
 }
 
 function loadBtn_click() {
-    loadFromStorage();
+    loadSettings();
 }
 
 function saveBtn_click() {
     getSettingsFromUI();
-    saveToStorage();
+    saveSettings();
 }
 
 function clearBtn_click() {
-    clearFromStorage();
+    clearSettings();
 }
 
 function getBtn_click() {
@@ -80,42 +79,29 @@ function resetBtn_click() {
 }
 
 function hideCbx_click() {
-    let hide = this.checked;
-
-    chrome.tabs.sendMessage(activeTabId, { topic: "setElementsState", hide: hide }, function (response) {
-        if (chrome.runtime.lastError)
-            return;
-    })
+    settings.elementsHidden = $("#hideCbx").is(':checked');
+    setElementsStateToPage(activeTabId, settings, function () { });
 }
 
 
-function loadFromStorage() {
-    chrome.storage.sync.get({ [activeTabHostname]: { zoomFactor: undefined, scrollX: undefined, scrollY: undefined, elements: undefined } }, function (result) {
-        if (chrome.runtime.lastError)
-            return;
-
-        settings = result[activeTabHostname];
+function loadSettings() {
+    loadSettingsFromStorage(activeTabHostname, function (loadedSettings) {
+        settings = loadedSettings;
         settingsStatus = settings.zoomFactor == undefined ? SettingsStatusEnum.unsaved : SettingsStatusEnum.saved;
         setSettingsToUI();
         updateStatusLbl();
     });
 }
 
-function saveToStorage() {
-    chrome.storage.sync.set({ [activeTabHostname]: settings }, function () {
-        if (chrome.runtime.lastError)
-            return;
-
+function saveSettings() {
+    saveSettingsToStorage(activeTabHostname, settings, function () {
         settingsStatus = SettingsStatusEnum.saved;
         setSettingsToUI();
     });
 }
 
-function clearFromStorage() {
-    chrome.storage.sync.remove(activeTabHostname, function () {
-        if (chrome.runtime.lastError)
-            return;
-
+function clearSettings() {
+    clearSettingsFromStorage(activeTabHostname, function () {
         settingsStatus = SettingsStatusEnum.unsaved;
         resetSettings();
     });
@@ -123,72 +109,19 @@ function clearFromStorage() {
 
 
 function getFromPage() {
-    chrome.tabs.getZoom(activeTabId, function (zoomFactor) {
-        if (chrome.runtime.lastError)
-            return;
-
-        settings.zoomFactor = zoomFactor;
-
-        chrome.tabs.sendMessage(activeTabId, { topic: "getScroll" }, function (response) {
-            if (chrome.runtime.lastError)
-                return;
-
-            settings.scrollX = response.scrollX;
-            settings.scrollY = response.scrollY;
-
-            chrome.tabs.sendMessage(activeTabId, { topic: "getElements" }, function (response) {
-                if (chrome.runtime.lastError)
-                    return;
-
-                settings.elements = response.elements;
-                setSettingsToUI();
-            });
-        });
-    })
+    getSettingsFromPage(activeTabId, settings, function (settings) {
+        setSettingsToUI();
+    });
 }
 
 function setToPage() {
     getSettingsFromUI();
-
-    chrome.tabs.setZoom(activeTabId, settings.zoomFactor, function (response) {
-        if (chrome.runtime.lastError)
-            return;
-
-        chrome.tabs.sendMessage(activeTabId, { topic: "setScroll", scrollX: settings.scrollX, scrollY: settings.scrollY }, function (response) {
-            if (chrome.runtime.lastError)
-                return;
-
-            chrome.tabs.sendMessage(activeTabId, { topic: "setElements", elements: settings.elements }, function (response) {
-                if (chrome.runtime.lastError)
-                    return;
-
-                chrome.tabs.sendMessage(activeTabId, { topic: "setElementsState", hide: true }, function (response) {
-                    if (chrome.runtime.lastError)
-                        return;
-
-                    let cbx = $("#hideCbx");
-                    $("#hideCbx").prop('checked', true);
-                })
-            })
-        })
-    })
+    setSettingsToPage(activeTabId, settings, function () { });
 }
 
 function resetPage() {
-    resetSettings();
+    defaultSettings();
     setToPage();
-}
-
-
-function getActiveTabInfo() {
-    chrome.runtime.sendMessage({ topic: "getActiveTabInfo" }, function (response) {
-        if (chrome.runtime.lastError)
-            return;
-
-        activeTabId = response.activeTabId;
-        activeTabHostname = response.activeTabHostname;
-        loadFromStorage();
-    });
 }
 
 
@@ -197,6 +130,7 @@ function getSettingsFromUI() {
     settings.scrollX = $("#scrollXTb").val();
     settings.scrollY = $("#scrollYTb").val();
     settings.elements = $("#elementsTb").val();
+    settings.elementsHidden = $("#hideCbx").is(':checked');
 }
 
 function setSettingsToUI() {
@@ -206,6 +140,7 @@ function setSettingsToUI() {
     $("#scrollXTb").val(isNaN(settings.scrollX) || settings.scrollX == null ? "-" : settings.scrollX);
     $("#scrollYTb").val(isNaN(settings.scrollY) || settings.scrollY == null ? "-" : settings.scrollY);
     $("#elementsTb").val(settings.elements);
+    $("#hideCbx").prop('checked', settings.elementsHidden);
 }
 
 function updateStatusLbl() {
@@ -243,13 +178,13 @@ function updateStatusLbl() {
     }
 }
 
-function resetSettings() {
-    settings = {
-        zoomFactor: 1.0,
-        scrollX: 0.0,
-        scrollY: 0.0,
-        elements: ""
-    };
 
+function resetSettings() {
+    resetSettingsObject(settings);
+    setSettingsToUI();
+}
+
+function defaultSettings() {
+    defaultSettingsObject(settings);
     setSettingsToUI();
 }

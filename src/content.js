@@ -1,5 +1,6 @@
 var hostname = undefined;
 var elementsString = undefined;
+var elementsHidden = false;
 var hiddenElements;
 
 
@@ -30,12 +31,23 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         elementsString = request.elements;
         sendResponse({ status: true });
     }
+    else if (request.topic == "getElementsState") {
+        sendResponse({ state: elementsHidden });
+    }
     else if (request.topic == "setElementsState") {
-        if (request.hide)
+        if (request.state)
             hideElements();
         else
             showElements();
-        sendResponse({ status: true });
+        sendResponse({ state: true });
+    }
+    else if (request.topic == "toggleElementsState") {
+        elementsHidden = !elementsHidden;
+        if (elementsHidden)
+            hideElements();
+        else
+            showElements();
+        sendResponse({ state: true });
     }
     else {
         sendResponse({ status: false });
@@ -45,6 +57,8 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 function showElements() {
     if (hiddenElements)
         hiddenElements.show();
+
+    elementsHidden = false;
 }
 
 function hideElements() {
@@ -58,6 +72,7 @@ function hideElements() {
     if (query != undefined) {
         hiddenElements = $(query);
         hiddenElements.hide();
+        elementsHidden = true;
     }
 
     console.log("Hidden elements: ", hiddenElements);
