@@ -48,6 +48,9 @@
     "load-apply": {
       "description": "Load & apply page settings"
     },
+    "save": {
+      "description": "Save currently set page settings"
+    },
     "get-from-page": {
       "description": "Get current page settings"
     },

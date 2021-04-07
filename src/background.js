@@ -15,9 +15,16 @@ chrome.commands.onCommand.addListener(function (command) {
     }
     else if (command == "set-to-page") {
         invokeSetToPage();
-    } else if (command == "load-apply") {
+    }
+    else if (command == "load-apply") {
         loadSettingsFromStorage(activeTabHostname, function (settings) {
             setSettingsToPage(activeTabId, settings, function () { });
+        });
+    }
+    else if (command == "save") {
+        let settings = {};
+        getSettingsFromPage(activeTabId, settings, function (newSettings) {
+            saveSettingsToStorage(activeTabHostname, newSettings, function () { });
         });
     }
     else if (command == "toggle-elements") {
