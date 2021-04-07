@@ -4,8 +4,13 @@ var activeTabHostname
 
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-    if (request.topic == "getActiveTabInfo")
+    if (request.topic == "getActiveTabInfo") {
         sendResponse({ activeTabId: activeTabId, activeTabUrl: activeTabUrl, activeTabHostname: activeTabHostname });
+    }
+    else if (request.topic == "updateTheme") {
+        updateBrowserActionIcons();
+        sendResponse({ status: true });
+    }
 });
 
 chrome.commands.onCommand.addListener(function (command) {

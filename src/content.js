@@ -4,8 +4,8 @@ var elementsHidden = false;
 var hiddenElements;
 
 
-window.matchMedia('(prefers-color-scheme: dark)').addListener(({ matches }) => {
-    chrome.runtime.sendMessage({ updateTheme: true });
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ({ event }) => {
+    chrome.runtime.sendMessage({ topic: "updateTheme" });
 });
 
 window.addEventListener("load", function (event) {
