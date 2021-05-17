@@ -25,6 +25,9 @@ document.addEventListener("DOMContentLoaded", function () {
     $("#getBtn").click(getBtn_click);
     $("#setBtn").click(setBtn_click);
     $("#resetBtn").click(resetBtn_click);
+    $("#backupBtn").click(backupBtn_click);
+    $("#restoreBtn").click(restoreBtn_click);
+    $("#restoreInput").on("change", restoreInput_change);
     $("#hideCbx").click(hideCbx_click);
 
     chrome.runtime.onMessage.addListener(onMessage);
@@ -78,6 +81,18 @@ function resetBtn_click() {
     resetPage();
 }
 
+function backupBtn_click() {
+    exportSettingsToFile();
+}
+
+function restoreBtn_click() {
+    $("#restoreInput").click();
+}
+
+function restoreInput_change() {
+    importSettings();
+}
+
 function hideCbx_click() {
     settings.elementsHidden = $("#hideCbx").is(':checked');
     setElementsStateToPage(activeTabId, settings, function () { });
@@ -104,6 +119,13 @@ function clearSettings() {
     clearSettingsFromStorage(activeTabHostname, function () {
         settingsStatus = SettingsStatusEnum.unsaved;
         resetSettings();
+    });
+}
+
+function importSettings() {
+    let file = $("#restoreInput").prop('files')[0];
+    importSettingsFromFile(file, function () {
+        alert("Settings have been successfully imported.");
     });
 }
 

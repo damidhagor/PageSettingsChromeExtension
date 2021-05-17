@@ -45,6 +45,29 @@ function clearSettingsFromStorage(key, callback) {
     });
 }
 
+function loadAllSettingsFromStorage(callback) {
+    chrome.storage.sync.get(null, function (result) {
+        if (chrome.runtime.lastError) {
+            console.log("Error loading all settings: " + chrome.runtime.lastError.message);
+            return;
+        }
+
+        callback(result);
+    });
+}
+
+function saveAllSettingsToStorage(settings, callback) {
+    console.log(settings);
+    chrome.storage.sync.set(settings, function () {
+        if (chrome.runtime.lastError) {
+            console.log("Error saving all settings: " + chrome.runtime.lastError.message);
+            return;
+        }
+
+        callback();
+    });
+}
+
 
 // PAGE FUNCTIONS
 function getSettingsFromPage(tabId, settings, callback) {
@@ -198,4 +221,61 @@ function defaultSettingsObject(settings) {
     settings.scrollY = 0.0;
     settings.elements = "";
     settings.elementsHidden = false;
+}
+
+
+// IMPORT/EXPORT SETTINGS FUNCTIONS
+function exportSettingsToFile() {
+    loadAllSettingsFromStorage(function (loadedSettings) {
+        let allSettings = loadedSettings;
+        let serializedSettings = serializeSettings(allSettings);
+        downloadSerializedSettings("exported-page-settings.json", serializedSettings);
+    });
+}
+
+function importSettingsFromFile(file, callback) {
+    let reader = new FileReader();
+    reader.onload = function (e) {
+        let serializedSettings = e.target.result;
+        let deserializedSettings = deserializeSettings(serializedSettings);
+        saveAllSettingsToStorage(deserializedSettings, callback);
+    };
+    reader.readAsText(file);
+}
+
+function downloadSerializedSettings(filename, serializedSettings) {
+    let settingsFile = new File([serializedSettings], filename, { type: "text/plain" });
+    url = window.URL.createObjectURL(settingsFile);
+
+    chrome.tabs.create({ url: url });
+}
+
+function serializeSettings(settings) {
+    return serializeSettingsV1(settings);
+}
+
+function serializeSettingsV1(settings) {
+    let versionedSettings = {
+        "version": "1",
+        "settings": settings
+    };
+
+    let serializedSettings = JSON.stringify(versionedSettings, null, 4);
+    return serializedSettings;
+}
+
+function deserializeSettings(serializedSettings) {
+    let versionedSettings = JSON.parse(serializedSettings);
+
+    if ('version' in versionedSettings) {
+        if (versionedSettings['version'] == "1")
+            return deserializeSettingsV1(versionedSettings);
+    }
+
+    return null;
+}
+
+function deserializeSettingsV1(deserializedSettings) {
+    let settings = deserializedSettings['settings'];
+    return settings;
 }

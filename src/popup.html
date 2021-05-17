@@ -13,24 +13,24 @@
         <legend>Settings</legend>
 
         <p>
-            <div>
-                <b>Zoom: </b>
-                <input id="zoomTb" type="text"/>
-                %
-            </div>
-            <div>
-                <b>Scroll X: </b>
-                <input id="scrollXTb" type="text"/>
-            </div>
-            <div>
-                <b>Scroll Y: </b>
-                <input id="scrollYTb" type="text"/>
-            </div>
-            <div>
-                <b>Remove Elements: </b>
-                <input id="elementsTb" type="text"/>
-                <input id="hideCbx" type="checkbox"/>
-            </div>
+        <div>
+            <b>Zoom: </b>
+            <input id="zoomTb" type="text" />
+            %
+        </div>
+        <div>
+            <b>Scroll X: </b>
+            <input id="scrollXTb" type="text" />
+        </div>
+        <div>
+            <b>Scroll Y: </b>
+            <input id="scrollYTb" type="text" />
+        </div>
+        <div>
+            <b>Remove Elements: </b>
+            <input id="elementsTb" type="text" />
+            <input id="hideCbx" type="checkbox" />
+        </div>
         </p>
 
         <p id="statusLbl"></p>
@@ -47,5 +47,12 @@
         <button id="setBtn" class="data-button">Set</button>
         <button id="resetBtn" class="data-button">Reset</button>
     </p>
+
+    <p>
+        <button id="backupBtn" class="data-button">Backup</button>
+        <button id="restoreBtn" class="data-button">Restore</button>
+        <input id="restoreInput" type="file" class="hidden">
+    </p>
 </body>
+
 </html>

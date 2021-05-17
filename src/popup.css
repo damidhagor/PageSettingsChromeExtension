@@ -30,3 +30,7 @@ body {
 .statusLbl-changed {
     color: orange;
 }
+
+.hidden {
+    display: none;
+}

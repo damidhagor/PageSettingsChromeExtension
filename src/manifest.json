@@ -42,7 +42,8 @@
   "incognito": "split",
   "permissions": [
     "storage",
-    "tabs"
+    "tabs",
+    "downloads"
   ],
   "commands": {
     "load-apply": {
