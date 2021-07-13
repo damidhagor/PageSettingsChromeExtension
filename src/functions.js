@@ -83,12 +83,14 @@ function getSettingsFromPage(tabId, settings, callback) {
 }
 
 function setSettingsToPage(tabId, settings, callback) {
-    setZoomToPage(tabId, settings, function () {
-        setScrollToPage(tabId, settings, function () {
-            setElementsToPage(tabId, settings, function () {
-                setElementsStateToPage(tabId, settings, function () {
-                    callback();
-                });
+    setZoomSettingsToPage(tabId, settings, function () {
+        setZoomToPage(tabId, settings, function () {
+            setScrollToPage(tabId, settings, function () {
+                setElementsToPage(tabId, settings, function () {
+                    setElementsStateToPage(tabId, settings, function () {
+                        callback();
+                    });
+                })
             })
         })
     })
@@ -148,6 +150,16 @@ function getElementsStateFromPage(tabId, settings, callback) {
 
         settings.elementsHidden = response.state;
         callback(settings);
+    });
+}
+
+function setZoomSettingsToPage(tabId, settings, callback) {
+    chrome.tabs.setZoomSettings(tabId, { scope: "per-tab" }, function (response) {
+        if (chrome.runtime.lastError) {
+            console.log("Error setting zoom settings: " + chrome.runtime.lastError.message);
+            return;
+        }
+        callback();
     });
 }
 

@@ -45,12 +45,16 @@ chrome.tabs.onActivated.addListener(function (activeInfo) {
     activeTabId = activeInfo.tabId;
 
     chrome.tabs.get(activeTabId, function (tab) {
-        activeTabUrl = tab.url != undefined ? tab.url : tab.pendingUrl;
-        try {
-            activeTabHostname = activeTabUrl ? new URL(activeTabUrl).hostname : undefined;
-        } catch (e) {
-            log.console(e.message);
-        }
+        setTimeout(() => {
+            if (tab != undefined) {
+                activeTabUrl = tab.url != undefined ? tab.url : tab.pendingUrl;
+                try {
+                    activeTabHostname = activeTabUrl ? new UFRL(activeTabUrl).hostname : undefined;
+                } catch (e) {
+                    console.log(e.message);
+                }
+            }
+        }, 100);
     });
 
     console.log("Active tab changed: " + activeTabId + ", " + activeTabUrl);
@@ -59,15 +63,17 @@ chrome.tabs.onActivated.addListener(function (activeInfo) {
 });
 
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-    if (tabId == activeTabId) {
-        if (changeInfo.url != undefined) {
-            activeTabUrl = changeInfo.url;
-            activeTabHostname = activeTabUrl != undefined ? new URL(activeTabUrl).hostname : undefined;
-        }
+    setTimeout(() => {
+        if (tabId == activeTabId) {
+            if (changeInfo.url != undefined) {
+                activeTabUrl = changeInfo.url;
+                activeTabHostname = activeTabUrl != undefined ? new URL(activeTabUrl).hostname : undefined;
+            }
 
-        console.log("Active tab updated: ", activeTabId + ", " + activeTabUrl);
-        updateBrowserActionState(activeTabId);
-    }
+            console.log("Active tab updated: ", activeTabId + ", " + activeTabUrl);
+            updateBrowserActionState(activeTabId);
+        }
+    }), 100;
 });
 
 
@@ -75,18 +81,20 @@ function initialize() {
     updateBrowserActionIcons();
 
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-        console.log(tabs);
-        activeTabId = tabs[0].id;
-        activeTabUrl = tabs[0].url != undefined ? tabs[0].url : tabs[0].pendingUrl;
-        try {
-            activeTabHostname = activeTabUrl ? new URL(activeTabUrl).hostname : undefined;
-        } catch (e) {
-            log.console(e.message);
-        }
+        setTimeout(() => {
+            console.log(tabs);
+            activeTabId = tabs[0].id;
+            activeTabUrl = tabs[0].url != undefined ? tabs[0].url : tabs[0].pendingUrl;
+            try {
+                activeTabHostname = activeTabUrl ? new URL(activeTabUrl).hostname : undefined;
+            } catch (e) {
+                log.console(e.message);
+            }
 
-        console.log(activeTabId);
-        console.log(activeTabUrl);
-        updateBrowserActionState(activeTabId);
+            console.log(activeTabId);
+            console.log(activeTabUrl);
+            updateBrowserActionState(activeTabId);
+        }, 100);
     });
 }
 
