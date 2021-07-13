@@ -44,22 +44,25 @@ chrome.runtime.onStartup.addListener(initialize);
 chrome.tabs.onActivated.addListener(function (activeInfo) {
     activeTabId = activeInfo.tabId;
 
-    chrome.tabs.get(activeTabId, function (tab) {
-        setTimeout(() => {
-            if (tab != undefined) {
+    setTimeout(() => {
+        chrome.tabs.get(activeTabId, function (tab) {
+            if (chrome.runtime.lastError) {
+                console.log("Error getting active tab: " + chrome.runtime.lastError.message);
+            }
+            else if (tab != undefined) {
                 activeTabUrl = tab.url != undefined ? tab.url : tab.pendingUrl;
                 try {
-                    activeTabHostname = activeTabUrl ? new UFRL(activeTabUrl).hostname : undefined;
+                    activeTabHostname = activeTabUrl ? new URL(activeTabUrl).hostname : undefined;
                 } catch (e) {
                     console.log(e.message);
                 }
+
+                console.log("Active tab changed: " + activeTabId + ", " + activeTabUrl);
+
+                updateBrowserActionState(activeTabId);
             }
-        }, 100);
-    });
-
-    console.log("Active tab changed: " + activeTabId + ", " + activeTabUrl);
-
-    updateBrowserActionState(activeTabId);
+        });
+    }, 300);
 });
 
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
