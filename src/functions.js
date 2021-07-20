@@ -70,6 +70,27 @@ function saveAllSettingsToStorage(settings, callback) {
 
 
 // PAGE FUNCTIONS
+function getTabInfo(tabId, callback) {
+    chrome.tabs.get(tabId, function (tab) {
+        let tabUrl = undefined;
+        let tabHostname = undefined;
+
+        if (chrome.runtime.lastError) {
+            console.log("Error getting tab: " + chrome.runtime.lastError.message);
+        }
+        else if (tab != undefined) {
+            tabUrl = tab.url != undefined ? tab.url : tab.pendingUrl;
+            try {
+                tabHostname = tabUrl ? new URL(tabUrl).hostname : undefined;
+            } catch (e) {
+                console.log(e.message);
+            }
+        }
+
+        callback({ tabUrl: tabUrl, tabHostname: tabHostname });
+    });
+}
+
 function getSettingsFromPage(tabId, settings, callback) {
     getZoomFromPage(tabId, settings, function (newSettings) {
         getScrollFromPage(tabId, newSettings, function (newSettings) {
@@ -233,6 +254,10 @@ function defaultSettingsObject(settings) {
     settings.scrollY = 0.0;
     settings.elements = "";
     settings.elementsHidden = false;
+}
+
+function isHostnameValid(hostname) {
+    return hostname != undefined && hostname != null && hostname != "";
 }
 
 

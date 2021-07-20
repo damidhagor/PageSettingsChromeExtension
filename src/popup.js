@@ -109,6 +109,9 @@ function loadSettings() {
 }
 
 function saveSettings() {
+    if (!isHostnameValid(activeTabHostname))
+        return;
+
     saveSettingsToStorage(activeTabHostname, settings, function () {
         settingsStatus = SettingsStatusEnum.saved;
         setSettingsToUI();
@@ -157,12 +160,13 @@ function getSettingsFromUI() {
 
 function setSettingsToUI() {
     updateStatusLbl();
-    $("#hostheader.innerText").val("Website " + activeTabHostname);
+    $("#websiteLbl").text(activeTabHostname == undefined ? "unknown" : activeTabHostname);
     $("#zoomTb").val(isNaN(settings.zoomFactor) || settings.zoomFactor == null ? "-" : settings.zoomFactor * 100);
     $("#scrollXTb").val(isNaN(settings.scrollX) || settings.scrollX == null ? "-" : settings.scrollX);
     $("#scrollYTb").val(isNaN(settings.scrollY) || settings.scrollY == null ? "-" : settings.scrollY);
     $("#elementsTb").val(settings.elements);
     $("#hideCbx").prop('checked', settings.elementsHidden);
+    $("#saveBtn").prop('disabled', !isHostnameValid(activeTabHostname));
 }
 
 function updateStatusLbl() {

@@ -5,7 +5,15 @@ var activeTabHostname
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (request.topic == "getActiveTabInfo") {
-        sendResponse({ activeTabId: activeTabId, activeTabUrl: activeTabUrl, activeTabHostname: activeTabHostname });
+        if (activeTabUrl == undefined || activeTabHostname == undefined) {
+            getActiveTabInfo(function () {
+                sendResponse({ activeTabId: activeTabId, activeTabUrl: activeTabUrl, activeTabHostname: activeTabHostname });
+            });
+            return true;
+        }
+        else {
+            sendResponse({ activeTabId: activeTabId, activeTabUrl: activeTabUrl, activeTabHostname: activeTabHostname });
+        }
     }
     else if (request.topic == "updateTheme") {
         updateBrowserActionIcons();
@@ -44,25 +52,7 @@ chrome.runtime.onStartup.addListener(initialize);
 chrome.tabs.onActivated.addListener(function (activeInfo) {
     activeTabId = activeInfo.tabId;
 
-    setTimeout(() => {
-        chrome.tabs.get(activeTabId, function (tab) {
-            if (chrome.runtime.lastError) {
-                console.log("Error getting active tab: " + chrome.runtime.lastError.message);
-            }
-            else if (tab != undefined) {
-                activeTabUrl = tab.url != undefined ? tab.url : tab.pendingUrl;
-                try {
-                    activeTabHostname = activeTabUrl ? new URL(activeTabUrl).hostname : undefined;
-                } catch (e) {
-                    console.log(e.message);
-                }
-
-                console.log("Active tab changed: " + activeTabId + ", " + activeTabUrl);
-
-                updateBrowserActionState(activeTabId);
-            }
-        });
-    }, 300);
+    getActiveTabInfo();
 });
 
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
@@ -144,6 +134,23 @@ function updateBrowserActionIcons() {
             }
         });
     }
+}
+
+
+function getActiveTabInfo(callback) {
+    setTimeout(() => {
+        getTabInfo(activeTabId, function (info) {
+            activeTabUrl = info.tabUrl;
+            activeTabHostname = info.tabHostname;
+
+            console.log("Active tab changed: " + activeTabId + ", " + activeTabUrl);
+
+            updateBrowserActionState(activeTabId);
+
+            if (callback != undefined && callback != null)
+                callback();
+        });
+    }, 300);
 }
 
 
