@@ -1,16 +1,3 @@
-// BACKGROUND FUNCTIONS
-function getActiveTabInfo(callback) {
-    chrome.runtime.sendMessage({ topic: "getActiveTabInfo" }, function (response) {
-        if (chrome.runtime.lastError) {
-            console.log("Error getting active tab: " + chrome.runtime.lastError.message);
-            return;
-        }
-
-        callback(response.activeTabId, response.activeTabHostname)
-    });
-}
-
-
 // STORAGE FUNCTIONS
 function loadSettingsFromStorage(key, callback) {
     chrome.storage.sync.get({ [key]: { zoomFactor: undefined, scrollX: undefined, scrollY: undefined, elements: undefined } }, function (result) {

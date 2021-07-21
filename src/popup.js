@@ -149,6 +149,17 @@ function resetPage() {
     setToPage();
 }
 
+function getActiveTabInfo(callback) {
+    chrome.runtime.sendMessage({ topic: "getActiveTabInfo" }, function (response) {
+        if (chrome.runtime.lastError) {
+            console.log("Error getting active tab: " + chrome.runtime.lastError.message);
+            return;
+        }
+
+        callback(response.activeTabId, response.activeTabHostname)
+    });
+}
+
 
 function getSettingsFromUI() {
     settings.zoomFactor = $("#zoomTb").val() / 100;
