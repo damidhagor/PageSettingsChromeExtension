@@ -53,174 +53,193 @@ async function saveAllSettingsToStorage(settings: PageSettingsCollection): Promi
 // #endregion
 
 
-// PAGE FUNCTIONS
-function getTabInfo(tabId, callback) {
-    chrome.tabs.get(tabId, function (tab) {
-        let tabUrl = undefined;
-        let tabHostname = undefined;
+// #region PAGE
+async function getTabInfo(tabId: number): Promise<TabInfo | null> {
+    try {
+        const tab = await chrome.tabs.get(tabId);
 
-        if (chrome.runtime.lastError) {
-            console.log("Error getting tab: " + chrome.runtime.lastError.message);
-        }
-        else if (tab != undefined) {
-            tabUrl = tab.url != undefined ? tab.url : tab.pendingUrl;
-            try {
-                tabHostname = tabUrl ? new URL(tabUrl).hostname : undefined;
-            } catch (e) {
-                console.log(e.message);
-            }
-        }
+        const id = tab.id ?? null;
+        let url = null;
+        let hostname = null;
 
-        callback({ tabUrl: tabUrl, tabHostname: tabHostname });
-    });
+        try {
+            if (typeof tab.url === "string")
+                url = new URL(tab.url);
+            else if (typeof tab.pendingUrl === "string")
+                url = new URL(tab.pendingUrl);
+        } catch { }
+
+        if (url !== null)
+            hostname = url.hostname;
+
+        return { id: id, url: url, host: hostname };
+    } catch (error) {
+        console.log("Error getting tab info: " + error.message);
+        return null;
+    }
 }
 
-function getSettingsFromPage(tabId, settings, callback) {
-    getZoomFromPage(tabId, settings, function (newSettings) {
-        getScrollFromPage(tabId, newSettings, function (newSettings) {
-            getElementsFromPage(tabId, newSettings, function (newSettings) {
-                getElementsStateFromPage(tabId, newSettings, function (newSettings) {
-                    callback(newSettings);
-                });
+async function getSettingsFromPage(tabId: number): Promise<void> {
+    try {
+        let settings: PageSettings = createDefaultPageSettings();
+
+        const zoom = await getZoomFromPage(tabId);
+        if (zoom !== null) settings.zoomFactor = zoom;
+
+        const scroll = await getScrollFromPage(tabId);
+        if (scroll !== null) { settings.scrollX = scroll.x; settings.scrollY = scroll.y; }
+
+        const elements = await getElementsFromPage(tabId);
+        if (elements !== null) settings.elements = elements;
+
+        const hidden = await getElementsStateFromPage(tabId);
+        if (hidden !== null) settings.elementsHidden = hidden;
+    } catch (error) {
+        console.log("Error getting settings from page: " + error.message);
+    }
+}
+
+async function setSettingsToPage(tabId: number, settings: PageSettings): Promise<void> {
+    try {
+        await setZoomSettingsToPage(tabId);
+        await setZoomToPage(tabId, settings.zoomFactor);
+        await setScrollToPage(tabId, { x: settings.scrollX, y: settings.scrollY });
+        await setElementsToPage(tabId, settings.elements);
+        await setElementsStateToPage(tabId, settings.elementsHidden);
+    } catch (error) {
+        console.log("Error setting settings to page: " + error.message);
+    }
+}
+
+async function resetPageSettings(tabId: number): Promise<PageSettings> {
+    const settings = createDefaultPageSettings();
+
+    try {
+        await setSettingsToPage(tabId, settings);
+    } catch (error) {
+        console.log("Error setting elements state: " + error.message);
+    }
+
+    return settings;
+}
+
+async function getZoomFromPage(tabId: number): Promise<number | null> {
+    try {
+        return await chrome.tabs.getZoom(tabId);
+    } catch (error) {
+        console.log("Error getting zoom: " + error.message);
+        return null;
+    }
+}
+
+function getScrollFromPage(tabId: number): Promise<ScrollValues | null> {
+    try {
+        return new Promise((resolve, reject) => {
+            chrome.tabs.sendMessage(tabId, { topic: "getScroll" }, response => {
+                if (chrome.runtime.lastError) {
+                    console.log("Error getting scroll values from page: " + chrome.runtime.lastError.message);
+                    reject(null);
+                } else if (isScrollValues(response)) {
+                    resolve(response);
+                } else {
+                    reject(null);
+                }
             });
         });
-    });
+    } catch (error) {
+        console.log("Error getting scroll values from page: " + error.message);
+        return Promise.resolve(null);
+    }
 }
 
-function setSettingsToPage(tabId, settings, callback) {
-    setZoomSettingsToPage(tabId, settings, function () {
-        setZoomToPage(tabId, settings, function () {
-            setScrollToPage(tabId, settings, function () {
-                setElementsToPage(tabId, settings, function () {
-                    setElementsStateToPage(tabId, settings, function () {
-                        callback();
-                    });
-                })
-            })
-        })
-    })
+function getElementsFromPage(tabId: number): Promise<string | null> {
+    try {
+        return new Promise((resolve, reject) => {
+            chrome.tabs.sendMessage(tabId, { topic: "getElements" }, response => {
+                if (chrome.runtime.lastError) {
+                    console.log("Error getting elements from page: " + chrome.runtime.lastError.message);
+                    reject(null);
+                } else if (typeof response === "string") {
+                    resolve(response);
+                } else {
+                    reject(null);
+                }
+            });
+        });
+    } catch (error) {
+        console.log("Error getting elements from page: " + error.message);
+        return Promise.resolve(null);
+    }
 }
 
-function resetPageSettings(tabId, settings, callback) {
-    resetSettings(settings);
-    setSettingsToPage(tabId, settings, function () {
-        callback(settings);
-    });
+async function getElementsStateFromPage(tabId: number): Promise<boolean | null> {
+    try {
+        return new Promise((resolve, reject) => {
+            chrome.tabs.sendMessage(tabId, { topic: "getElementsState" }, response => {
+                if (chrome.runtime.lastError) {
+                    console.log("Error getting elements state from page: " + chrome.runtime.lastError.message);
+                    reject(null);
+                } else if (typeof response === "boolean") {
+                    resolve(response);
+                } else {
+                    reject(null);
+                }
+            });
+        });
+    } catch (error) {
+        console.log("Error getting elements state from page: " + error.message);
+        return Promise.resolve(null);
+    }
 }
 
-function getZoomFromPage(tabId, settings, callback) {
-    chrome.tabs.getZoom(tabId, function (zoomFactor) {
-        if (chrome.runtime.lastError) {
-            console.log("Error getting zoom: " + chrome.runtime.lastError.message);
-            return;
-        }
-
-        settings.zoomFactor = zoomFactor;
-        callback(settings);
-    });
+async function setZoomSettingsToPage(tabId: number): Promise<void> {
+    try {
+        await chrome.tabs.setZoomSettings(tabId, { scope: "per-tab" });
+    } catch (error) {
+        console.log("Error setting zoom settings: " + error.message);
+    }
 }
 
-function getScrollFromPage(tabId, settings, callback) {
-    chrome.tabs.sendMessage(tabId, { topic: "getScroll" }, function (response) {
-        if (chrome.runtime.lastError) {
-            console.log("Error getting scroll: " + chrome.runtime.lastError.message);
-            return;
-        }
-
-        settings.scrollX = response.scrollX;
-        settings.scrollY = response.scrollY;
-
-        callback(settings);
-    });
+async function setZoomToPage(tabId: number, zoom: number): Promise<void> {
+    try {
+        await chrome.tabs.setZoom(tabId, zoom);
+    } catch (error) {
+        console.log("Error setting zoom: " + error.message);
+    }
 }
 
-function getElementsFromPage(tabId, settings, callback) {
-    chrome.tabs.sendMessage(tabId, { topic: "getElements" }, function (response) {
-        if (chrome.runtime.lastError) {
-            console.log("Error getting elements: " + chrome.runtime.lastError.message);
-            return;
-        }
-
-        settings.elements = response.elements;
-        callback(settings);
-    });
+async function setScrollToPage(tabId: number, scroll: ScrollValues): Promise<void> {
+    try {
+        await chrome.tabs.sendMessage(tabId, { topic: "setScroll", scroll: scroll });
+    } catch (error) {
+        console.log("Error setting scroll: " + error.message);
+    }
 }
 
-function getElementsStateFromPage(tabId, settings, callback) {
-    chrome.tabs.sendMessage(tabId, { topic: "getElementsState" }, function (response) {
-        if (chrome.runtime.lastError) {
-            console.log("Error getting elements state: " + chrome.runtime.lastError.message);
-            return;
-        }
-
-        settings.elementsHidden = response.state;
-        callback(settings);
-    });
+async function setElementsToPage(tabId: number, elements: string | null): Promise<void> {
+    try {
+        await chrome.tabs.sendMessage(tabId, { topic: "setElements", elements: elements });
+    } catch (error) {
+        console.log("Error setting elements: " + error.message);
+    }
 }
 
-function setZoomSettingsToPage(tabId, settings, callback) {
-    chrome.tabs.setZoomSettings(tabId, { scope: "per-tab" }, function (response) {
-        if (chrome.runtime.lastError) {
-            console.log("Error setting zoom settings: " + chrome.runtime.lastError.message);
-            return;
-        }
-        callback();
-    });
+async function setElementsStateToPage(tabId: number, state: boolean): Promise<void> {
+    try {
+        await chrome.tabs.sendMessage(tabId, { topic: "setElementsState", state: state });
+    } catch (error) {
+        console.log("Error setting elements state: " + error.message);
+    }
 }
 
-function setZoomToPage(tabId, settings, callback) {
-    chrome.tabs.setZoom(tabId, settings.zoomFactor, function (response) {
-        if (chrome.runtime.lastError) {
-            console.log("Error setting zoom: " + chrome.runtime.lastError.message);
-            return;
-        }
-        callback();
-    });
+async function toggleElementsStateOnPage(tabId: number): Promise<void> {
+    try {
+        await chrome.tabs.sendMessage(tabId, { topic: "toggleElementsState" });
+    } catch (error) {
+        console.log("Error toggling elements state: " + error.message);
+    }
 }
-
-function setScrollToPage(tabId, settings, callback) {
-    chrome.tabs.sendMessage(tabId, { topic: "setScroll", scrollX: settings.scrollX, scrollY: settings.scrollY }, function (response) {
-        if (chrome.runtime.lastError) {
-            console.log("Error setting scroll: " + chrome.runtime.lastError.message);
-            return;
-        }
-
-        callback();
-    });
-}
-
-function setElementsToPage(tabId, settings, callback) {
-    chrome.tabs.sendMessage(tabId, { topic: "setElements", elements: settings.elements }, function (response) {
-        if (chrome.runtime.lastError) {
-            console.log("Error setting elements: " + chrome.runtime.lastError.message);
-            return;
-        }
-
-        callback();
-    });
-}
-
-function setElementsStateToPage(tabId, settings, callback) {
-    chrome.tabs.sendMessage(tabId, { topic: "setElementsState", state: settings.elementsHidden }, function (response) {
-        if (chrome.runtime.lastError) {
-            console.log("Error setting elements state: " + chrome.runtime.lastError.message);
-            return;
-        }
-
-        callback();
-    });
-}
-
-function toggleElementsStateOnPage(tabId, callback) {
-    chrome.tabs.sendMessage(tabId, { topic: "toggleElementsState" }, function (response) {
-        if (chrome.runtime.lastError) {
-            console.log("Error toggling elements state: " + chrome.runtime.lastError.message);
-            return;
-        }
-
-        callback();
-    });
-}
+// #endregion
 
 
 // #region SETTINGS
