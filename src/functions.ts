@@ -1,59 +1,56 @@
-// STORAGE FUNCTIONS
-function loadSettingsFromStorage(key, callback) {
-    chrome.storage.sync.get({ [key]: { zoomFactor: undefined, scrollX: undefined, scrollY: undefined, elements: undefined } }, function (result) {
-        if (chrome.runtime.lastError) {
-            console.log("Error loading settings: " + chrome.runtime.lastError.message);
-            return;
-        }
+// #region STORAGE
+async function loadSettingsFromStorage(key: string): Promise<PageSettings> {
+    try {
+        let results = await chrome.storage.sync.get(key);
 
-        callback(result[key]);
-    });
+        return (results !== null && key in results && isPageSettings(results[key])) ? results[key] : createDefaultPageSettings();
+    } catch (error) {
+        console.log("Error saving settings: " + error.message);
+        return createDefaultPageSettings();
+    }
 }
 
-function saveSettingsToStorage(key, settings, callback) {
-    chrome.storage.sync.set({ [key]: settings }, function () {
-        if (chrome.runtime.lastError) {
-            console.log("Error saving settings: " + chrome.runtime.lastError.message);
-            return;
-        }
-
-        callback();
-    });
+async function saveSettingsToStorage(key: string, settings: PageSettings): Promise<void> {
+    try {
+        await chrome.storage.sync.set({ [key]: settings });
+    } catch (error) {
+        console.log("Error saving settings: " + error.message);
+    }
 }
 
-function clearSettingsFromStorage(key, callback) {
-    chrome.storage.sync.remove(key, function () {
-        if (chrome.runtime.lastError) {
-            console.log("Error clearing settings: " + chrome.runtime.lastError.message);
-            return;
-        }
-
-        callback();
-    });
+async function clearSettingsFromStorage(key: string): Promise<void> {
+    try {
+        await chrome.storage.sync.remove(key);
+    } catch (error) {
+        console.log("Error clearing settings: " + error.message);
+    }
 }
 
-function loadAllSettingsFromStorage(callback) {
-    chrome.storage.sync.get(null, function (result) {
-        if (chrome.runtime.lastError) {
-            console.log("Error loading all settings: " + chrome.runtime.lastError.message);
-            return;
-        }
+async function loadAllSettingsFromStorage(): Promise<PageSettingsCollection> {
+    try {
+        let results = await chrome.storage.sync.get(null);
 
-        callback(result);
-    });
+        let settings: PageSettingsCollection = {};
+        let keys = Object.keys(results).filter(key => isPageSettings(results[key]));
+        keys.forEach(key => {
+            settings[key] = results[key] as PageSettings;
+        });
+
+        return settings;
+    } catch (error) {
+        console.log("Error loading all settings: " + error.message);
+        return {};
+    }
 }
 
-function saveAllSettingsToStorage(settings, callback) {
-    console.log(settings);
-    chrome.storage.sync.set(settings, function () {
-        if (chrome.runtime.lastError) {
-            console.log("Error saving all settings: " + chrome.runtime.lastError.message);
-            return;
-        }
-
-        callback();
-    });
+async function saveAllSettingsToStorage(settings: PageSettingsCollection): Promise<void> {
+    try {
+        await chrome.storage.sync.set(settings);
+    } catch (error) {
+        console.log("Error saving all settings: " + error.message);
+    }
 }
+// #endregion
 
 
 // PAGE FUNCTIONS
@@ -226,80 +223,81 @@ function toggleElementsStateOnPage(tabId, callback) {
 }
 
 
-// SETTINGS FUNCTIONS
-function resetSettingsObject(settings) {
-    settings.zoomFactor = undefined;
-    settings.scrollX = undefined;
-    settings.scrollY = undefined;
-    settings.elements = undefined;
-    settings.elementsHidden = false;
+// #region SETTINGS
+function createDefaultPageSettings(): PageSettings {
+    return { zoomFactor: 1.0, scrollX: 0.0, scrollY: 0.0, elements: null, elementsHidden: false, };
+};
+
+function isHostnameValid(hostname: string | null | undefined): boolean {
+    return hostname !== undefined && hostname !== null && hostname !== "";
+}
+// #endregion
+
+
+// #region IMPORT/EXPORT
+async function exportSettingsToFile(): Promise<void> {
+    let settings = await loadAllSettingsFromStorage();
+
+    let serialized = serializeSettings(settings);
+    await downloadSerializedSettings("exported-page-settings.json", serialized);
 }
 
-function defaultSettingsObject(settings) {
-    settings.zoomFactor = 1.0;
-    settings.scrollX = 0.0;
-    settings.scrollY = 0.0;
-    settings.elements = "";
-    settings.elementsHidden = false;
-}
+function importSettingsFromFile(file: File): Promise<void> {
+    return new Promise((resolve, reject) => {
+        let reader = new FileReader();
 
-function isHostnameValid(hostname) {
-    return hostname != undefined && hostname != null && hostname != "";
-}
+        reader.onload = async function (e) {
+            if (e !== null && e.target !== null && e.target.result !== null && typeof e.target.result === "string") {
+                let settings = deserializeSettings(e.target.result);
 
+                if (settings !== null)
+                    await saveAllSettingsToStorage(settings);
 
-// IMPORT/EXPORT SETTINGS FUNCTIONS
-function exportSettingsToFile() {
-    loadAllSettingsFromStorage(function (loadedSettings) {
-        let allSettings = loadedSettings;
-        let serializedSettings = serializeSettings(allSettings);
-        downloadSerializedSettings("exported-page-settings.json", serializedSettings);
+                resolve();
+            }
+            else {
+                reject();
+            }
+        };
+
+        reader.onerror = reject;
+
+        reader.readAsText(file);
     });
 }
 
-function importSettingsFromFile(file, callback) {
-    let reader = new FileReader();
-    reader.onload = function (e) {
-        let serializedSettings = e.target.result;
-        let deserializedSettings = deserializeSettings(serializedSettings);
-        saveAllSettingsToStorage(deserializedSettings, callback);
-    };
-    reader.readAsText(file);
+async function downloadSerializedSettings(filename: string, settings: string): Promise<void> {
+    let settingsFile: File = new File([settings], filename, { type: "text/plain" });
+    let url: string = window.URL.createObjectURL(settingsFile);
+
+    await chrome.tabs.create({ url: url });
 }
 
-function downloadSerializedSettings(filename, serializedSettings) {
-    let settingsFile = new File([serializedSettings], filename, { type: "text/plain" });
-    url = window.URL.createObjectURL(settingsFile);
-
-    chrome.tabs.create({ url: url });
-}
-
-function serializeSettings(settings) {
+function serializeSettings(settings: PageSettingsCollection): string {
     return serializeSettingsV1(settings);
 }
 
-function serializeSettingsV1(settings) {
-    let versionedSettings = {
-        "version": "1",
-        "settings": settings
+function serializeSettingsV1(settings: PageSettingsCollection): string {
+    let versionedSettings: VersionedPageSettings = {
+        version: "1",
+        settings: settings
     };
 
-    let serializedSettings = JSON.stringify(versionedSettings, null, 4);
-    return serializedSettings;
+    return JSON.stringify(versionedSettings, null, 4);
 }
 
-function deserializeSettings(serializedSettings) {
-    let versionedSettings = JSON.parse(serializedSettings);
+function deserializeSettings(serializedSettings: string): PageSettingsCollection | null {
+    let versionedSettings: VersionedPageSettings = JSON.parse(serializedSettings);
 
-    if ('version' in versionedSettings) {
-        if (versionedSettings['version'] == "1")
+    if (isVersionedPageSettings(versionedSettings)) {
+        if (versionedSettings.version == "1")
             return deserializeSettingsV1(versionedSettings);
     }
 
     return null;
 }
 
-function deserializeSettingsV1(deserializedSettings) {
-    let settings = deserializedSettings['settings'];
-    return settings;
+function deserializeSettingsV1(settings: VersionedPageSettings): PageSettingsCollection {
+    return settings.settings;
 }
+// #endregion
