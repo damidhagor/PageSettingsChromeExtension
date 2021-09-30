@@ -1,0 +1,5 @@
+Rework Settings
+    - Introduce v2 settings type
+    - Store settings versioned
+    - Export/Import settings directly from storage
+    - Upgrade settings type version when reading/writing object
