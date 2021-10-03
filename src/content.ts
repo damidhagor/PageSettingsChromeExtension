@@ -1,6 +1,6 @@
 {
     let settings: PageSettings = createDefaultPageSettings();
-    let elements: NodeListOf<HTMLElement> | null;
+    let elements: NodeListOf<HTMLElement> | null = null;
 
 
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', async (e) => {
@@ -36,34 +36,39 @@
             if (topic === MessageTopics.GetStatus) {
                 result = true;
             }
-            else if (topic === MessageTopics.GetScroll && isScrollValues(payload)) {
-                result = <ScrollValues>{ x: window.scrollX, y: window.scrollY };
+            else if (topic === MessageTopics.GetPageSettings) {
+                result = getCurrentSettings();
             }
-            else if (topic === MessageTopics.SetScroll && isScrollValues(payload)) {
-                window.scroll(payload.x, payload.y);
+            else if (topic === MessageTopics.SetPageSettings && isPageSettings(payload)) {
+                applySettings(payload);
                 result = true;
-            }
-            else if (topic === MessageTopics.GetElementsQuery) {
-                result = settings.elements;
-            }
-            else if (topic === MessageTopics.SetElementsQuery && isNullableString(payload)) {
-                settings.elements = payload;
-            }
-            else if (topic === MessageTopics.GetElementsState) {
-                result = settings.elementsHidden;
             }
             else if (topic === MessageTopics.SetElementsState && isBoolean(payload)) {
-                payload ? hideElements() : showElements();
-                result = true;
-            }
-            else if (topic === MessageTopics.ToggleElementsState) {
-                settings.elementsHidden ? showElements() : hideElements();
+                payload ? showElements() : hideElements();
                 result = true;
             }
         }
 
         sendResponse(result);
     });
+
+
+    function getCurrentSettings(): PageSettings {
+        const current = settings ?? createDefaultPageSettings();
+
+        current.scrollX = window.scrollX;
+        current.scrollY = window.scrollY;
+
+        return current;
+    }
+
+    function applySettings(pageSettings: PageSettings) {
+        settings = pageSettings;
+
+        window.scroll(settings.scrollX, settings.scrollY);
+        settings.elementsHidden ? hideElements() : showElements();
+    }
+
 
     function showElements() {
         if (elements !== null)

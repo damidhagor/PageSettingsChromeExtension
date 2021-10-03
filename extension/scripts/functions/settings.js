@@ -16,8 +16,7 @@ function isPageSettings(obj) {
 }
 function isVersionedPageSettings(obj) {
     return "version" in obj
-        && "settings" in obj
-        && isPageSettings(obj["settings"]);
+        && "settings" in obj;
 }
 function exportSettingsToFile() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -30,17 +29,17 @@ function importSettingsFromFile(file) {
     return new Promise((resolve, reject) => {
         let reader = new FileReader();
         reader.onload = function (e) {
-            return __awaiter(this, void 0, void 0, function* () {
-                if (e !== null && e.target !== null && e.target.result !== null && typeof e.target.result === "string") {
-                    let settings = deserializeSettings(e.target.result);
-                    if (settings !== null)
-                        yield saveAllSettingsToStorage(settings);
-                    resolve();
-                }
-                else {
+            if (e !== null && e.target !== null && e.target.result !== null && typeof e.target.result === "string") {
+                let settings = deserializeSettings(e.target.result);
+                if (settings !== null)
+                    saveAllSettingsToStorage(settings);
+                else
                     reject();
-                }
-            });
+                resolve();
+            }
+            else {
+                reject();
+            }
         };
         reader.onerror = reject;
         reader.readAsText(file);

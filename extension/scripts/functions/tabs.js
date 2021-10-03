@@ -30,6 +30,18 @@ function getTabInfo(tabId) {
         }
     });
 }
+function getActiveTabInfo() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const id = yield getActiveTabId();
+            return id !== null ? yield getTabInfo(id) : null;
+        }
+        catch (error) {
+            console.log(`Error getting tab info: ${error.message}`);
+            return null;
+        }
+    });
+}
 function createTabInfo(tab) {
     var _a, _b;
     try {

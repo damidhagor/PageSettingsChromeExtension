@@ -64,7 +64,7 @@
             sendResponse(result);
         });
 
-        await getActiveTabInfo();
+        await loadSettings();
     });
 
 
@@ -121,34 +121,35 @@
 
 
     async function loadSettings(): Promise<void> {
+        activeTabInfo = await getActiveTabInfo();
         if (activeTabInfo !== null && activeTabInfo.host !== null) {
             settings = await loadSettingsFromStorage(activeTabInfo.host);
+            settingsStatus = SettingsStatus.Saved;
         } else {
             settings = createDefaultPageSettings();
+            settingsStatus = SettingsStatus.Unsaved;
         }
-
-        settingsStatus = SettingsStatus.Unsaved;
 
         setSettingsToUI();
         updateStatusLbl();
     }
 
-    async function saveSettings(): Promise<void> {
+    function saveSettings() {
         const hostname = activeTabInfo?.host;
 
         if (isHostnameValid(hostname) && isString(hostname)) {
-            await saveSettingsToStorage(hostname, settings);
+            saveSettingsToStorage(hostname, settings);
             settingsStatus = SettingsStatus.Saved;
             setSettingsToUI();
         }
 
     }
 
-    async function clearSettings(): Promise<void> {
+    function clearSettings() {
         const hostname = activeTabInfo?.host;
 
         if (isHostnameValid(hostname) && isString(hostname)) {
-            await clearSettingsFromStorage(hostname);
+            clearSettingsFromStorage(hostname);
             settingsStatus = SettingsStatus.Unsaved;
             resetSettings();
         }
@@ -186,16 +187,6 @@
     async function resetPage(): Promise<void> {
         resetSettings();
         await setToPage();
-    }
-
-
-    async function getActiveTabInfo(): Promise<void> {
-        try {
-            activeTabInfo = await sendRuntimeMessage<TabInfo>({ topic: MessageTopics.GetActiveTabInfo, payload: null });
-            loadSettings();
-        } catch (error) {
-            console.error(`Error refreshing active tab info: ${error.message}`);
-        }
     }
 
 
@@ -245,7 +236,7 @@
         else
             settingsStatus = SettingsStatus.Unsaved
 
-        statusLbl.classList.remove("statusLbl-unsaved statusLbl-saved statusLbl-changed");
+        statusLbl.classList.remove("statusLbl-unsaved", "statusLbl-saved", "statusLbl-changed");
 
         if (settingsStatus == SettingsStatus.Unsaved) {
             statusLbl.classList.add("statusLbl-unsaved");

@@ -9,60 +9,60 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 function loadSettingsFromStorage(key) {
     return __awaiter(this, void 0, void 0, function* () {
-        try {
-            let results = yield chrome.storage.sync.get(key);
-            return (results !== null && key in results && isPageSettings(results[key])) ? results[key] : createDefaultPageSettings();
-        }
-        catch (error) {
-            console.log(`Error saving settings: ${error.message}`);
-            return createDefaultPageSettings();
-        }
+        return new Promise((resolve, reject) => {
+            chrome.storage.sync.get(key, (results) => {
+                if (chrome.runtime.lastError) {
+                    console.warn(`Error loading settings: ${chrome.runtime.lastError.message}`);
+                    reject(chrome.runtime.lastError.message);
+                }
+                const settings = (results !== null && results !== undefined && key in results && isPageSettings(results[key]))
+                    ? results[key]
+                    : createDefaultPageSettings();
+                resolve(settings);
+            });
+        });
     });
 }
 function saveSettingsToStorage(key, settings) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            yield chrome.storage.sync.set({ [key]: settings });
-        }
-        catch (error) {
-            console.log(`Error saving settings: ${error.message}`);
-        }
-    });
+    try {
+        if (isHostnameValid(key))
+            chrome.storage.sync.set({ [key]: settings });
+    }
+    catch (error) {
+        console.log(`Error saving settings: ${error.message}`);
+    }
 }
 function clearSettingsFromStorage(key) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            yield chrome.storage.sync.remove(key);
-        }
-        catch (error) {
-            console.log(`Error clearing settings: ${error.message}`);
-        }
-    });
+    try {
+        chrome.storage.sync.remove(key);
+    }
+    catch (error) {
+        console.log(`Error clearing settings: ${error.message}`);
+    }
 }
 function loadAllSettingsFromStorage() {
     return __awaiter(this, void 0, void 0, function* () {
-        try {
-            let results = yield chrome.storage.sync.get(null);
-            let settings = {};
-            let keys = Object.keys(results).filter(key => isPageSettings(results[key]));
-            keys.forEach(key => {
-                settings[key] = results[key];
+        return new Promise((resolve, reject) => {
+            chrome.storage.sync.get((results) => {
+                if (chrome.runtime.lastError) {
+                    console.log(`Error loading all settings: ${chrome.runtime.lastError}`);
+                    reject(chrome.runtime.lastError.message);
+                }
+                let settings = {};
+                let keys = Object.keys(results).filter(key => isPageSettings(results[key]));
+                keys.forEach(key => {
+                    settings[key] = results[key];
+                });
+                resolve(settings);
             });
-            return settings;
-        }
-        catch (error) {
-            console.log(`Error loading all settings: ${error.message}`);
-            return {};
-        }
+        });
     });
 }
 function saveAllSettingsToStorage(settings) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            yield chrome.storage.sync.set(settings);
-        }
-        catch (error) {
-            console.log(`Error saving all settings: ${error.message}`);
-        }
-    });
+    try {
+        chrome.storage.sync.set(settings);
+    }
+    catch (error) {
+        console.log(`Error saving all settings: ${error.message}`);
+    }
 }

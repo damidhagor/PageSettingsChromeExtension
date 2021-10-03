@@ -6,19 +6,14 @@ interface Message {
 enum MessageTopics {
     // Messages to Content
     GetStatus,
-    GetScroll,
-    SetScroll,
-    GetElementsQuery,
-    SetElementsQuery,
-    GetElementsState,
     SetElementsState,
-    ToggleElementsState,
+    GetPageSettings,
+    SetPageSettings,
     // Messages to Popup
     GetSettingsFromPage,
     SetSettingsToPage,
     // Messages to Background
-    UpdateTheme,
-    GetActiveTabInfo
+    UpdateTheme
 }
 
 function isMessage(obj: any): obj is Message {
@@ -32,7 +27,7 @@ function sendTabMessage<Type>(tabId: number, message: Message): Promise<Type | n
     return new Promise((resolve, reject) => {
         chrome.tabs.sendMessage(tabId, message, response => {
             if (chrome.runtime.lastError) {
-                console.error(`Error sending message to tab: ${chrome.runtime.lastError.message}`);
+                console.warn(`Error sending message to tab: ${chrome.runtime.lastError.message}`);
             }
             console.log(`Response: ${response}`);
             response ? resolve(response) : reject();

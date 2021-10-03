@@ -1,51 +1,59 @@
 async function loadSettingsFromStorage(key: string): Promise<PageSettings> {
-    try {
-        let results = await chrome.storage.sync.get(key);
+    return new Promise((resolve, reject) => {
+        chrome.storage.sync.get(key, (results) => {
+            if (chrome.runtime.lastError) {
+                console.warn(`Error loading settings: ${chrome.runtime.lastError.message}`);
+                reject(chrome.runtime.lastError.message);
+            }
 
-        return (results !== null && key in results && isPageSettings(results[key])) ? results[key] : createDefaultPageSettings();
+            const settings = (results !== null && results !== undefined && key in results && isPageSettings(results[key]))
+                ? results[key]
+                : createDefaultPageSettings();
+            resolve(settings);
+        });
+    });
+}
+
+function saveSettingsToStorage(key: string, settings: PageSettings) {
+    try {
+        if (isHostnameValid(key))
+            chrome.storage.sync.set({ [key]: settings });
     } catch (error) {
         console.log(`Error saving settings: ${error.message}`);
-        return createDefaultPageSettings();
     }
 }
 
-async function saveSettingsToStorage(key: string, settings: PageSettings): Promise<void> {
+function clearSettingsFromStorage(key: string) {
     try {
-        await chrome.storage.sync.set({ [key]: settings });
-    } catch (error) {
-        console.log(`Error saving settings: ${error.message}`);
-    }
-}
-
-async function clearSettingsFromStorage(key: string): Promise<void> {
-    try {
-        await chrome.storage.sync.remove(key);
+        chrome.storage.sync.remove(key);
     } catch (error) {
         console.log(`Error clearing settings: ${error.message}`);
     }
 }
 
 async function loadAllSettingsFromStorage(): Promise<PageSettingsCollection> {
-    try {
-        let results = await chrome.storage.sync.get(null);
+    return new Promise((resolve, reject) => {
+        chrome.storage.sync.get((results) => {
+            if (chrome.runtime.lastError) {
+                console.log(`Error loading all settings: ${chrome.runtime.lastError}`);
+                reject(chrome.runtime.lastError.message);
+            }
 
-        let settings: PageSettingsCollection = {};
-        let keys = Object.keys(results).filter(key => isPageSettings(results[key]));
+            let settings: PageSettingsCollection = {};
+            let keys = Object.keys(results).filter(key => isPageSettings(results[key]));
 
-        keys.forEach(key => {
-            settings[key] = results[key] as PageSettings;
+            keys.forEach(key => {
+                settings[key] = results[key] as PageSettings;
+            });
+
+            resolve(settings);
         });
-
-        return settings;
-    } catch (error) {
-        console.log(`Error loading all settings: ${error.message}`);
-        return {};
-    }
+    });
 }
 
-async function saveAllSettingsToStorage(settings: PageSettingsCollection): Promise<void> {
+function saveAllSettingsToStorage(settings: PageSettingsCollection) {
     try {
-        await chrome.storage.sync.set(settings);
+        chrome.storage.sync.set(settings);
     } catch (error) {
         console.log(`Error saving all settings: ${error.message}`);
     }

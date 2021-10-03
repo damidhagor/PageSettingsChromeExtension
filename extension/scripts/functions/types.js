@@ -17,3 +17,6 @@ function isNullableString(obj) {
 function isBoolean(obj) {
     return typeof obj === "boolean";
 }
+function isHostnameValid(hostname) {
+    return hostname !== undefined && hostname !== null && hostname !== "";
+}

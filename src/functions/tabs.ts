@@ -26,6 +26,17 @@ async function getTabInfo(tabId: number): Promise<TabInfo | null> {
     }
 }
 
+async function getActiveTabInfo(): Promise<TabInfo | null> {
+    try {
+
+        const id = await getActiveTabId();
+        return id !== null ? await getTabInfo(id) : null;
+    } catch (error) {
+        console.log(`Error getting tab info: ${error.message}`);
+        return null;
+    }
+}
+
 function createTabInfo(tab: chrome.tabs.Tab): TabInfo | null {
     try {
         const id = tab.id ?? null;

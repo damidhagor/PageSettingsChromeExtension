@@ -11,6 +11,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     importScripts("functions/types.js");
     importScripts("functions/tabs.js");
     importScripts("functions/messages.js");
+    importScripts("functions/storage.js");
+    importScripts("functions/settings.js");
+    importScripts("functions.js");
     let activeTabInfo;
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => __awaiter(this, void 0, void 0, function* () {
         let result = false;
@@ -18,18 +21,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         if (isMessage(message)) {
             const topic = message.topic;
             const payload = message.payload;
-            if (topic === MessageTopics.GetActiveTabInfo) {
-                refreshActiveTabInfo()
-                    .then(() => {
-                    sendResponse(activeTabInfo);
-                })
-                    .catch((reason) => {
-                    console.error(`Error refreshing active tab info: ${reason}`);
-                    result = false;
-                });
-                return true;
-            }
-            else if (topic === MessageTopics.UpdateTheme) {
+            if (topic === MessageTopics.UpdateTheme) {
                 updateBrowserActionIcons(payload);
                 result = true;
             }
@@ -39,13 +31,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     chrome.commands.onCommand.addListener((command) => __awaiter(this, void 0, void 0, function* () {
         console.log(`Command received: ${command}`);
         if (command === "load-apply") {
-            const tabId = yield getActiveTabId();
-            if (tabId !== null) {
-                const tabInfo = yield getTabInfo(tabId);
-                if (tabInfo !== null && tabInfo.host !== null) {
-                    const settings = yield loadSettingsFromStorage(tabInfo.host);
-                    yield setSettingsToPage(tabId, settings);
-                }
+            const tabInfo = yield getActiveTabInfo();
+            if (tabInfo !== null && tabInfo.id !== null && tabInfo.host !== null) {
+                const settings = yield loadSettingsFromStorage(tabInfo.host);
+                yield setSettingsToPage(tabInfo.id, settings);
             }
         }
     }));
@@ -55,20 +44,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     chrome.tabs.onUpdated.addListener(refreshActiveTabInfo);
     function initialize() {
         return __awaiter(this, void 0, void 0, function* () {
-            // updateBrowserActionIcons();
             yield refreshActiveTabInfo();
         });
     }
     function refreshActiveTabInfo() {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
-            const id = yield getActiveTabId();
-            activeTabInfo = id !== null ? yield getTabInfo(id) : null;
+            activeTabInfo = yield getActiveTabInfo();
             console.log("Active tab changed: " + (activeTabInfo === null || activeTabInfo === void 0 ? void 0 : activeTabInfo.id) + ", " + (activeTabInfo === null || activeTabInfo === void 0 ? void 0 : activeTabInfo.url));
             yield updateBrowserActionState((_a = activeTabInfo === null || activeTabInfo === void 0 ? void 0 : activeTabInfo.id) !== null && _a !== void 0 ? _a : null);
         });
     }
-    // #region Browser Action
     function updateBrowserActionState(tabId) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
@@ -109,27 +95,4 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             });
         }
     }
-    // #endregion
-    // #region Page Settings
-    function invokeGetFromPage() {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                yield sendRuntimeMessage({ topic: MessageTopics.GetSettingsFromPage, payload: null });
-            }
-            catch (error) {
-                console.error(`Error invoking get-settings-from-page: ${error.message}`);
-            }
-        });
-    }
-    function invokeSetToPage() {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                yield sendRuntimeMessage({ topic: MessageTopics.SetSettingsToPage, payload: null });
-            }
-            catch (error) {
-                console.error(`Error invoking set-settings-to-page: ${error.message}`);
-            }
-        });
-    }
-    // #endregion
 }

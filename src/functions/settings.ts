@@ -24,8 +24,7 @@ function isPageSettings(obj: any): obj is PageSettings {
 
 function isVersionedPageSettings(obj: any): obj is VersionedPageSettings {
     return "version" in obj
-        && "settings" in obj
-        && isPageSettings(obj["settings"]);
+        && "settings" in obj;
 }
 
 
@@ -40,12 +39,14 @@ function importSettingsFromFile(file: File): Promise<void> {
     return new Promise((resolve, reject) => {
         let reader = new FileReader();
 
-        reader.onload = async function (e) {
+        reader.onload = function (e) {
             if (e !== null && e.target !== null && e.target.result !== null && typeof e.target.result === "string") {
                 let settings = deserializeSettings(e.target.result);
 
                 if (settings !== null)
-                    await saveAllSettingsToStorage(settings);
+                    saveAllSettingsToStorage(settings);
+                else
+                    reject();
 
                 resolve();
             }

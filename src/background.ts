@@ -2,6 +2,9 @@
     importScripts("functions/types.js")
     importScripts("functions/tabs.js")
     importScripts("functions/messages.js")
+    importScripts("functions/storage.js")
+    importScripts("functions/settings.js")
+    importScripts("functions.js")
 
     let activeTabInfo: TabInfo | null;
 
@@ -14,17 +17,7 @@
             const topic = message.topic;
             const payload = message.payload;
 
-            if (topic === MessageTopics.GetActiveTabInfo) {
-                refreshActiveTabInfo()
-                    .then(() => {
-                        sendResponse(activeTabInfo);
-                    })
-                    .catch((reason) => {
-                        console.error(`Error refreshing active tab info: ${reason}`);
-                        result = false;
-                    });
-                return true;
-            } else if (topic === MessageTopics.UpdateTheme) {
+            if (topic === MessageTopics.UpdateTheme) {
                 updateBrowserActionIcons(payload);
                 result = true;
             }
@@ -37,13 +30,10 @@
         console.log(`Command received: ${command}`);
 
         if (command === "load-apply") {
-            const tabId = await getActiveTabId();
-            if (tabId !== null) {
-                const tabInfo = await getTabInfo(tabId);
-                if (tabInfo !== null && tabInfo.host !== null) {
-                    const settings = await loadSettingsFromStorage(tabInfo.host);
-                    await setSettingsToPage(tabId, settings);
-                }
+            const tabInfo = await getActiveTabInfo();
+            if (tabInfo !== null && tabInfo.id !== null && tabInfo.host !== null) {
+                const settings = await loadSettingsFromStorage(tabInfo.host);
+                await setSettingsToPage(tabInfo.id, settings);
             }
         }
     });
@@ -58,20 +48,19 @@
 
 
     async function initialize(): Promise<void> {
-        // updateBrowserActionIcons();
         await refreshActiveTabInfo();
     }
 
+
     async function refreshActiveTabInfo(): Promise<void> {
-        const id = await getActiveTabId();
-        activeTabInfo = id !== null ? await getTabInfo(id) : null;
+        activeTabInfo = await getActiveTabInfo();
 
         console.log("Active tab changed: " + activeTabInfo?.id + ", " + activeTabInfo?.url);
 
         await updateBrowserActionState(activeTabInfo?.id ?? null);
     }
 
-    // #region Browser Action
+
     async function updateBrowserActionState(tabId: number | null): Promise<void> {
         if (tabId !== null) {
             let result: boolean;
@@ -110,24 +99,4 @@
             });
         }
     }
-    // #endregion
-
-
-    // #region Page Settings
-    async function invokeGetFromPage(): Promise<void> {
-        try {
-            await sendRuntimeMessage<boolean>({ topic: MessageTopics.GetSettingsFromPage, payload: null })
-        } catch (error) {
-            console.error(`Error invoking get-settings-from-page: ${error.message}`);
-        }
-    }
-
-    async function invokeSetToPage(): Promise<void> {
-        try {
-            await sendRuntimeMessage<boolean>({ topic: MessageTopics.SetSettingsToPage, payload: null })
-        } catch (error) {
-            console.error(`Error invoking set-settings-to-page: ${error.message}`);
-        }
-    }
-    // #endregion
 }

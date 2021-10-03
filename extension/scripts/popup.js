@@ -68,7 +68,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             }
             sendResponse(result);
         }));
-        yield getActiveTabInfo();
+        yield loadSettings();
     }));
     // #region Eventhandlers
     function tb_input() {
@@ -113,36 +113,34 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     // #endregion
     function loadSettings() {
         return __awaiter(this, void 0, void 0, function* () {
+            activeTabInfo = yield getActiveTabInfo();
             if (activeTabInfo !== null && activeTabInfo.host !== null) {
                 settings = yield loadSettingsFromStorage(activeTabInfo.host);
+                settingsStatus = SettingsStatus.Saved;
             }
             else {
                 settings = createDefaultPageSettings();
+                settingsStatus = SettingsStatus.Unsaved;
             }
-            settingsStatus = SettingsStatus.Unsaved;
             setSettingsToUI();
             updateStatusLbl();
         });
     }
     function saveSettings() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const hostname = activeTabInfo === null || activeTabInfo === void 0 ? void 0 : activeTabInfo.host;
-            if (isHostnameValid(hostname) && isString(hostname)) {
-                yield saveSettingsToStorage(hostname, settings);
-                settingsStatus = SettingsStatus.Saved;
-                setSettingsToUI();
-            }
-        });
+        const hostname = activeTabInfo === null || activeTabInfo === void 0 ? void 0 : activeTabInfo.host;
+        if (isHostnameValid(hostname) && isString(hostname)) {
+            saveSettingsToStorage(hostname, settings);
+            settingsStatus = SettingsStatus.Saved;
+            setSettingsToUI();
+        }
     }
     function clearSettings() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const hostname = activeTabInfo === null || activeTabInfo === void 0 ? void 0 : activeTabInfo.host;
-            if (isHostnameValid(hostname) && isString(hostname)) {
-                yield clearSettingsFromStorage(hostname);
-                settingsStatus = SettingsStatus.Unsaved;
-                resetSettings();
-            }
-        });
+        const hostname = activeTabInfo === null || activeTabInfo === void 0 ? void 0 : activeTabInfo.host;
+        if (isHostnameValid(hostname) && isString(hostname)) {
+            clearSettingsFromStorage(hostname);
+            settingsStatus = SettingsStatus.Unsaved;
+            resetSettings();
+        }
     }
     function importSettings() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -179,17 +177,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         return __awaiter(this, void 0, void 0, function* () {
             resetSettings();
             yield setToPage();
-        });
-    }
-    function getActiveTabInfo() {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                activeTabInfo = yield sendRuntimeMessage({ topic: MessageTopics.GetActiveTabInfo, payload: null });
-                loadSettings();
-            }
-            catch (error) {
-                console.error(`Error refreshing active tab info: ${error.message}`);
-            }
         });
     }
     function resetSettings() {
@@ -233,7 +220,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             settingsStatus = SettingsStatus.Saved;
         else
             settingsStatus = SettingsStatus.Unsaved;
-        statusLbl.classList.remove("statusLbl-unsaved statusLbl-saved statusLbl-changed");
+        statusLbl.classList.remove("statusLbl-unsaved", "statusLbl-saved", "statusLbl-changed");
         if (settingsStatus == SettingsStatus.Unsaved) {
             statusLbl.classList.add("statusLbl-unsaved");
             statusLbl.innerText = "Unsaved";
