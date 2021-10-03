@@ -6,3 +6,6 @@ It saves the page's current zoom factor and scroll position into chrome storage 
 Also it has support for entering a JQuery query string to select page elements which can then be hidden.
 The query string is also saved along the zoom and scroll settings.
 This is helpful for pages which e.g. display annoying overlays.
+
+To build this extension Typescript needs to be installed via npm and also the Google types:
+npm install --save-dev @types/chrome

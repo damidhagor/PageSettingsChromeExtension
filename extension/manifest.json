@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Page Settings - BETA",
+  "name": "Page Settings",
   "version": "1.1",
   "description": "Stores/Reloads page's zoom & scroll values and also a jquery query string which hides elements on the page.",
   "icons": {
