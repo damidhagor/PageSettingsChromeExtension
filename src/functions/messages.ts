@@ -16,6 +16,11 @@ enum MessageTopics {
     UpdateTheme
 }
 
+enum Theme {
+    LightMode,
+    DarkMode
+}
+
 function isMessage(obj: any): obj is Message {
     return "topic" in obj
         && "payload" in obj;

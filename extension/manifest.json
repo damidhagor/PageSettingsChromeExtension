@@ -28,9 +28,9 @@
         "https://*/*"
       ],
       "js": [
-        "scripts/functions/types.js",
         "scripts/functions/settings.js",
         "scripts/functions/messages.js",
+        "scripts/functions/types.js",
         "scripts/content.js"
       ]
     }

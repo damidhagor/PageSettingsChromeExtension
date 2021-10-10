@@ -7,16 +7,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-function setElementsStateToPage(tabId, state) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            yield sendTabMessage(tabId, { topic: MessageTopics.SetElementsState, payload: state });
-        }
-        catch (error) {
-            console.log("Error setting elements state: " + error.message);
-        }
-    });
-}
 function getZoomFromPage(tabId) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -61,6 +51,16 @@ function setSettingsToPage(tabId, settings) {
         }
         catch (error) {
             console.log(`Error setting settings: ${error}`);
+        }
+    });
+}
+function setElementsStateToPage(tabId, state) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            yield sendTabMessage(tabId, { topic: MessageTopics.SetElementsState, payload: state });
+        }
+        catch (error) {
+            console.log("Error setting elements state: " + error.message);
         }
     });
 }

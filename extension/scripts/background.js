@@ -8,13 +8,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 {
-    importScripts("functions/types.js");
-    importScripts("functions/tabs.js");
     importScripts("functions/messages.js");
+    importScripts("functions/tabs.js");
     importScripts("functions/storage.js");
     importScripts("functions/settings.js");
-    importScripts("functions.js");
-    let activeTabInfo;
+    importScripts("functions/page.js");
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => __awaiter(this, void 0, void 0, function* () {
         let result = false;
         const message = request;
@@ -38,19 +36,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             }
         }
     }));
-    chrome.runtime.onInstalled.addListener(initialize);
-    chrome.runtime.onStartup.addListener(initialize);
     chrome.tabs.onActivated.addListener(refreshActiveTabInfo);
     chrome.tabs.onUpdated.addListener(refreshActiveTabInfo);
-    function initialize() {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield refreshActiveTabInfo();
-        });
-    }
     function refreshActiveTabInfo() {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
-            activeTabInfo = yield getActiveTabInfo();
+            const activeTabInfo = yield getActiveTabInfo();
             console.log("Active tab changed: " + (activeTabInfo === null || activeTabInfo === void 0 ? void 0 : activeTabInfo.id) + ", " + (activeTabInfo === null || activeTabInfo === void 0 ? void 0 : activeTabInfo.url));
             yield updateBrowserActionState((_a = activeTabInfo === null || activeTabInfo === void 0 ? void 0 : activeTabInfo.id) !== null && _a !== void 0 ? _a : null);
         });

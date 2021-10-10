@@ -1,12 +1,10 @@
 {
-    importScripts("functions/types.js")
-    importScripts("functions/tabs.js")
     importScripts("functions/messages.js")
+    importScripts("functions/tabs.js")
     importScripts("functions/storage.js")
     importScripts("functions/settings.js")
-    importScripts("functions.js")
-
-    let activeTabInfo: TabInfo | null;
+    importScripts("functions/page.js")
+    
 
 
     chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
@@ -38,22 +36,12 @@
         }
     });
 
-    chrome.runtime.onInstalled.addListener(initialize);
-
-    chrome.runtime.onStartup.addListener(initialize);
-
     chrome.tabs.onActivated.addListener(refreshActiveTabInfo);
-
     chrome.tabs.onUpdated.addListener(refreshActiveTabInfo);
 
 
-    async function initialize(): Promise<void> {
-        await refreshActiveTabInfo();
-    }
-
-
     async function refreshActiveTabInfo(): Promise<void> {
-        activeTabInfo = await getActiveTabInfo();
+        const activeTabInfo = await getActiveTabInfo();
 
         console.log("Active tab changed: " + activeTabInfo?.id + ", " + activeTabInfo?.url);
 

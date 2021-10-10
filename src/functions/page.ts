@@ -1,12 +1,3 @@
-async function setElementsStateToPage(tabId: number, state: boolean): Promise<void> {
-    try {
-        await sendTabMessage(tabId, { topic: MessageTopics.SetElementsState, payload: state });
-    } catch (error) {
-        console.log("Error setting elements state: " + error.message);
-    }
-}
-
-
 async function getZoomFromPage(tabId: number): Promise<number> {
     try {
         return await chrome.tabs.getZoom(tabId);
@@ -43,5 +34,13 @@ async function setSettingsToPage(tabId: number, settings: PageSettings): Promise
         await setZoomForPage(tabId, settings.zoomFactor);
     } catch (error) {
         console.log(`Error setting settings: ${error}`);
+    }
+}
+
+async function setElementsStateToPage(tabId: number, state: boolean): Promise<void> {
+    try {
+        await sendTabMessage(tabId, { topic: MessageTopics.SetElementsState, payload: state });
+    } catch (error) {
+        console.log("Error setting elements state: " + error.message);
     }
 }
