@@ -65,8 +65,8 @@
     function applySettings(pageSettings: PageSettings) {
         settings = pageSettings;
 
-        window.scroll(settings.scrollX, settings.scrollY);
         settings.elementsHidden ? hideElements() : showElements();
+        window.scroll(settings.scrollX, settings.scrollY);
     }
 
 

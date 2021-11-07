@@ -46,8 +46,8 @@ function getSettingsFromPage(tabId) {
 function setSettingsToPage(tabId, settings) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            yield sendTabMessage(tabId, { topic: MessageTopics.SetPageSettings, payload: settings });
             yield setZoomForPage(tabId, settings.zoomFactor);
+            yield sendTabMessage(tabId, { topic: MessageTopics.SetPageSettings, payload: settings });
         }
         catch (error) {
             console.log(`Error setting settings: ${error}`);

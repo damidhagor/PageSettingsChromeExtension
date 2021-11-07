@@ -62,8 +62,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     }
     function applySettings(pageSettings) {
         settings = pageSettings;
-        window.scroll(settings.scrollX, settings.scrollY);
         settings.elementsHidden ? hideElements() : showElements();
+        window.scroll(settings.scrollX, settings.scrollY);
     }
     function showElements() {
         if (elements !== null)

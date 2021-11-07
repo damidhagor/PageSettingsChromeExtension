@@ -1,0 +1,19 @@
+{
+  "name": "@damidhagor/page-settings-chrome-extension",
+  "version": "1.0.0",
+  "description": "This extensions enables saving and restoring the current zoom and scroll status of a page.\r It saves the page's current zoom factor and scroll position into chrome storage and can reload the stored settings and reapply them to the page.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/damidhagor/RemoveDOMElementsBrowserExtension.git"
+  },
+  "keywords": [],
+  "author": "Alexander Jurk",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/damidhagor/RemoveDOMElementsBrowserExtension/issues"
+  },
+  "homepage": "https://github.com/damidhagor/RemoveDOMElementsBrowserExtension#readme",
+  "dependencies": {
+    "@types/chrome": "0.0.162"
+  }
+}

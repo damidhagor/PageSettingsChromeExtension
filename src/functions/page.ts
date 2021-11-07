@@ -30,8 +30,8 @@ async function getSettingsFromPage(tabId: number): Promise<PageSettings> {
 
 async function setSettingsToPage(tabId: number, settings: PageSettings): Promise<void> {
     try {
-        await sendTabMessage(tabId, { topic: MessageTopics.SetPageSettings, payload: settings });
         await setZoomForPage(tabId, settings.zoomFactor);
+        await sendTabMessage(tabId, { topic: MessageTopics.SetPageSettings, payload: settings });
     } catch (error) {
         console.log(`Error setting settings: ${error}`);
     }
