@@ -1,29 +1,7 @@
 {
     let settings: PageSettings = createDefaultPageSettings();
     let elements: NodeListOf<HTMLElement> | null = null;
-
-
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', async (e) => {
-        try {
-            const theme = e.matches ? Theme.DarkMode : Theme.LightMode;
-            await sendRuntimeMessage({ topic: MessageTopics.UpdateTheme, payload: theme });
-        } catch (error) {
-            console.error(`Error sending update-theme: ${error}`);
-        }
-    });
-
-    window.addEventListener("load", async () => {
-        const hostname = window.location.hostname;
-        console.log("RemoveDOMElementsBrowserExtension loaded for " + hostname + "!");
-
-        const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        try {
-            const theme = isDarkMode ? Theme.DarkMode : Theme.LightMode;
-            await sendRuntimeMessage({ topic: MessageTopics.UpdateTheme, payload: theme });
-        } catch (error) {
-            console.error(`Error sending update-theme: ${error}`);
-        }
-    });
+    
 
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         let result: any = false;

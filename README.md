@@ -9,3 +9,8 @@ This is helpful for pages which e.g. display annoying overlays.
 
 To build this extension Typescript needs to be installed via npm and also the Google types:
 npm install --save-dev @types/chrome
+
+## Icon
+
+https://icons.getbootstrap.com/icons/columns-gap/
+Color: #339AF0

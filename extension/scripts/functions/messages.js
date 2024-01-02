@@ -8,14 +8,7 @@ var MessageTopics;
     // Messages to Popup
     MessageTopics[MessageTopics["GetSettingsFromPage"] = 4] = "GetSettingsFromPage";
     MessageTopics[MessageTopics["SetSettingsToPage"] = 5] = "SetSettingsToPage";
-    // Messages to Background
-    MessageTopics[MessageTopics["UpdateTheme"] = 6] = "UpdateTheme";
 })(MessageTopics || (MessageTopics = {}));
-var Theme;
-(function (Theme) {
-    Theme[Theme["LightMode"] = 0] = "LightMode";
-    Theme[Theme["DarkMode"] = 1] = "DarkMode";
-})(Theme || (Theme = {}));
 function isMessage(obj) {
     return "topic" in obj
         && "payload" in obj;

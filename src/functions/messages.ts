@@ -11,14 +11,7 @@ enum MessageTopics {
     SetPageSettings,
     // Messages to Popup
     GetSettingsFromPage,
-    SetSettingsToPage,
-    // Messages to Background
-    UpdateTheme
-}
-
-enum Theme {
-    LightMode,
-    DarkMode
+    SetSettingsToPage
 }
 
 function isMessage(obj: any): obj is Message {
