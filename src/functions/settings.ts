@@ -2,8 +2,7 @@ interface PageSettings {
     zoomFactor: number,
     scrollX: number,
     scrollY: number,
-    elements: string | null,
-    elementsHidden: boolean
+    elements: string | null
 }
 
 interface VersionedPageSettings {
@@ -97,5 +96,5 @@ function deserializeSettingsV1(settings: VersionedPageSettings): PageSettingsCol
 }
 
 function createDefaultPageSettings(): PageSettings {
-    return { zoomFactor: 1.0, scrollX: 0.0, scrollY: 0.0, elements: null, elementsHidden: false, };
+    return { zoomFactor: 1.0, scrollX: 0.0, scrollY: 0.0, elements: null };
 };

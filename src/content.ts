@@ -1,7 +1,7 @@
 {
     let settings: PageSettings = createDefaultPageSettings();
     let elements: NodeListOf<HTMLElement> | null = null;
-    
+
 
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         let result: any = false;
@@ -42,17 +42,15 @@
 
     function applySettings(pageSettings: PageSettings) {
         settings = pageSettings;
-
-        settings.elementsHidden ? hideElements() : showElements();
+        hideElements();
         window.scroll(settings.scrollX, settings.scrollY);
     }
 
 
     function showElements() {
-        if (elements !== null)
+        if (elements !== null) {
             elements.forEach(e => e.style.display = "");
-
-        settings.elementsHidden = false;
+        }
     }
 
     function hideElements() {
@@ -66,7 +64,6 @@
         if (query !== null) {
             elements = document.querySelectorAll(query);
             elements.forEach(e => e.style.display = "none");
-            settings.elementsHidden = true;
         }
 
         console.log("Hidden elements: ", elements);

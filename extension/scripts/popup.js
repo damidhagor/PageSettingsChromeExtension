@@ -22,7 +22,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     let scrollXTb;
     let scrollYTb;
     let elementsQueryTb;
-    let hideElementsCbx;
     let statusLbl;
     let loadBtn;
     let saveBtn;
@@ -41,16 +40,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         (_b = (scrollXTb = document.querySelector("#scrollXTb"))) === null || _b === void 0 ? void 0 : _b.addEventListener("input", tb_input);
         (_c = (scrollYTb = document.querySelector("#scrollYTb"))) === null || _c === void 0 ? void 0 : _c.addEventListener("input", tb_input);
         (_d = (elementsQueryTb = document.querySelector("#elementsQueryTb"))) === null || _d === void 0 ? void 0 : _d.addEventListener("input", tb_input);
-        (_e = (hideElementsCbx = document.querySelector("#hideElementsCbx"))) === null || _e === void 0 ? void 0 : _e.addEventListener("click", hideCbx_click);
-        (_f = (loadBtn = document.querySelector("#loadBtn"))) === null || _f === void 0 ? void 0 : _f.addEventListener("click", loadBtn_click);
-        (_g = (saveBtn = document.querySelector("#saveBtn"))) === null || _g === void 0 ? void 0 : _g.addEventListener("click", saveBtn_click);
-        (_h = (clearBtn = document.querySelector("#clearBtn"))) === null || _h === void 0 ? void 0 : _h.addEventListener("click", clearBtn_click);
-        (_j = (getBtn = document.querySelector("#getBtn"))) === null || _j === void 0 ? void 0 : _j.addEventListener("click", getBtn_click);
-        (_k = (setBtn = document.querySelector("#setBtn"))) === null || _k === void 0 ? void 0 : _k.addEventListener("click", setBtn_click);
-        (_l = (resetBtn = document.querySelector("#resetBtn"))) === null || _l === void 0 ? void 0 : _l.addEventListener("click", resetBtn_click);
-        (_m = (backupBtn = document.querySelector("#backupBtn"))) === null || _m === void 0 ? void 0 : _m.addEventListener("click", backupBtn_click);
-        (_o = (restoreBtn = document.querySelector("#restoreBtn"))) === null || _o === void 0 ? void 0 : _o.addEventListener("click", restoreBtn_click);
-        (_p = (restoreInput = document.querySelector("#restoreInput"))) === null || _p === void 0 ? void 0 : _p.addEventListener("change", restoreInput_change);
+        (_e = (loadBtn = document.querySelector("#loadBtn"))) === null || _e === void 0 ? void 0 : _e.addEventListener("click", loadBtn_click);
+        (_f = (saveBtn = document.querySelector("#saveBtn"))) === null || _f === void 0 ? void 0 : _f.addEventListener("click", saveBtn_click);
+        (_g = (clearBtn = document.querySelector("#clearBtn"))) === null || _g === void 0 ? void 0 : _g.addEventListener("click", clearBtn_click);
+        (_h = (getBtn = document.querySelector("#getBtn"))) === null || _h === void 0 ? void 0 : _h.addEventListener("click", getBtn_click);
+        (_j = (setBtn = document.querySelector("#setBtn"))) === null || _j === void 0 ? void 0 : _j.addEventListener("click", setBtn_click);
+        (_k = (resetBtn = document.querySelector("#resetBtn"))) === null || _k === void 0 ? void 0 : _k.addEventListener("click", resetBtn_click);
+        (_l = (backupBtn = document.querySelector("#backupBtn"))) === null || _l === void 0 ? void 0 : _l.addEventListener("click", backupBtn_click);
+        (_m = (restoreBtn = document.querySelector("#restoreBtn"))) === null || _m === void 0 ? void 0 : _m.addEventListener("click", restoreBtn_click);
+        (_o = (restoreInput = document.querySelector("#restoreInput"))) === null || _o === void 0 ? void 0 : _o.addEventListener("change", restoreInput_change);
         chrome.runtime.onMessage.addListener((request, sender, sendResponse) => __awaiter(this, void 0, void 0, function* () {
             let result = false;
             const message = request;
@@ -101,14 +99,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     }
     function restoreInput_change() {
         importSettings();
-    }
-    function hideCbx_click() {
-        return __awaiter(this, void 0, void 0, function* () {
-            settings.elementsHidden = hideElementsCbx.checked;
-            const activeTabId = yield getActiveTabId();
-            if (activeTabId !== null)
-                setElementsStateToPage(activeTabId, settings.elementsHidden);
-        });
     }
     // #endregion
     function loadSettings() {
@@ -184,12 +174,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         setSettingsToUI();
     }
     function getSettingsFromUI() {
-        var _a;
         settings.zoomFactor = parseFloat(zoomTb.value) / 100;
         settings.scrollX = parseFloat(scrollXTb.value);
         settings.scrollY = parseFloat(scrollYTb.value);
         settings.elements = elementsQueryTb.value;
-        settings.elementsHidden = (_a = hideElementsCbx.checked) !== null && _a !== void 0 ? _a : false;
     }
     function setSettingsToUI() {
         var _a, _b;
@@ -199,7 +187,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         scrollXTb.value = isNaN(settings.scrollX) || settings.scrollX == null ? "-" : String(settings.scrollX);
         scrollYTb.value = isNaN(settings.scrollY) || settings.scrollY == null ? "-" : String(settings.scrollY);
         elementsQueryTb.value = (_b = settings.elements) !== null && _b !== void 0 ? _b : "";
-        hideElementsCbx.checked = settings.elementsHidden;
         saveBtn.disabled = !isHostnameValid(activeTabInfo === null || activeTabInfo === void 0 ? void 0 : activeTabInfo.host);
     }
     function updateStatusLbl() {

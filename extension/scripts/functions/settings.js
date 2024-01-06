@@ -74,6 +74,6 @@ function deserializeSettingsV1(settings) {
     return settings.settings;
 }
 function createDefaultPageSettings() {
-    return { zoomFactor: 1.0, scrollX: 0.0, scrollY: 0.0, elements: null, elementsHidden: false, };
+    return { zoomFactor: 1.0, scrollX: 0.0, scrollY: 0.0, elements: null };
 }
 ;

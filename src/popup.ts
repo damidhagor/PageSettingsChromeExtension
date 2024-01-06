@@ -14,7 +14,6 @@
     let scrollXTb: HTMLInputElement;
     let scrollYTb: HTMLInputElement;
     let elementsQueryTb: HTMLInputElement;
-    let hideElementsCbx: HTMLInputElement;
     let statusLbl: HTMLParagraphElement;
     let loadBtn: HTMLButtonElement;
     let saveBtn: HTMLButtonElement;
@@ -33,7 +32,6 @@
         (scrollXTb = <HTMLInputElement>document.querySelector("#scrollXTb"))?.addEventListener("input", tb_input);
         (scrollYTb = <HTMLInputElement>document.querySelector("#scrollYTb"))?.addEventListener("input", tb_input);
         (elementsQueryTb = <HTMLInputElement>document.querySelector("#elementsQueryTb"))?.addEventListener("input", tb_input);
-        (hideElementsCbx = <HTMLInputElement>document.querySelector("#hideElementsCbx"))?.addEventListener("click", hideCbx_click);
         (loadBtn = <HTMLButtonElement>document.querySelector("#loadBtn"))?.addEventListener("click", loadBtn_click);
         (saveBtn = <HTMLButtonElement>document.querySelector("#saveBtn"))?.addEventListener("click", saveBtn_click);
         (clearBtn = <HTMLButtonElement>document.querySelector("#clearBtn"))?.addEventListener("click", clearBtn_click);
@@ -108,14 +106,6 @@
 
     function restoreInput_change() {
         importSettings();
-    }
-
-    async function hideCbx_click(): Promise<void> {
-        settings.elementsHidden = hideElementsCbx.checked;
-
-        const activeTabId = await getActiveTabId();
-        if (activeTabId !== null)
-            setElementsStateToPage(activeTabId, settings.elementsHidden);
     }
     // #endregion
 
@@ -201,7 +191,6 @@
         settings.scrollX = parseFloat(scrollXTb.value);
         settings.scrollY = parseFloat(scrollYTb.value);
         settings.elements = elementsQueryTb.value;
-        settings.elementsHidden = hideElementsCbx.checked ?? false;
     }
 
     function setSettingsToUI() {
@@ -211,7 +200,6 @@
         scrollXTb.value = isNaN(settings.scrollX) || settings.scrollX == null ? "-" : String(settings.scrollX);
         scrollYTb.value = isNaN(settings.scrollY) || settings.scrollY == null ? "-" : String(settings.scrollY);
         elementsQueryTb.value = settings.elements ?? "";
-        hideElementsCbx.checked = settings.elementsHidden;
         saveBtn.disabled = !isHostnameValid(activeTabInfo?.host);
     }
 
