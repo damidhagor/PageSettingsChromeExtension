@@ -17,8 +17,12 @@
     <body>
         <div class="d-flex flex-column gap-2 m-2"
              style="width: 400px; height: 500px;">
+            <div class="d-flex flex-row align-items-baseline">
+                <h3>Page Settings</h3>
 
-            <h3>Page Settings</h3>
+                <div id="statusLbl" class="badge ms-auto"></div>
+            </div>
+
 
             <div>
                 <h6 class="form-label">Website</h6>
@@ -55,8 +59,6 @@
                           class="form-control flex-grow-1"
                           style="resize: none;"></textarea>
             </div>
-
-            <div id="statusLbl"></div>
 
             <div class="d-flex flex-row gap-2 justify-content-end">
                 <button class="btn btn-primary" id="getBtn">Get</button>

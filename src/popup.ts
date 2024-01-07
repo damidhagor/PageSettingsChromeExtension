@@ -224,18 +224,18 @@
         else
             settingsStatus = SettingsStatus.Unsaved
 
-        statusLbl.classList.remove("statusLbl-unsaved", "statusLbl-saved", "statusLbl-changed");
+        statusLbl.classList.remove("text-bg-danger", "text-bg-success", "text-bg-warning");
 
         if (settingsStatus == SettingsStatus.Unsaved) {
-            statusLbl.classList.add("statusLbl-unsaved");
+            statusLbl.classList.add("text-bg-danger");
             statusLbl.innerText = "Unsaved";
         }
         else if (settingsStatus == SettingsStatus.Saved) {
-            statusLbl.classList.add("statusLbl-saved");
+            statusLbl.classList.add("text-bg-success");
             statusLbl.innerText = "Saved";
         }
         else if (settingsStatus == SettingsStatus.Changed) {
-            statusLbl.classList.add("statusLbl-changed");
+            statusLbl.classList.add("text-bg-warning");
             statusLbl.innerText = "Changed";
         }
         else {
