@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html data-bs-theme="dark">
 
 <head>
     <link rel="stylesheet" type="text/css" href="bootstrap/bootstrap.min.css" />
     <script src="bootstrap/bootstrap.bundle.min.js"></script>
 
-    <link rel="stylesheet" type="text/css" href="popup.css" />
     <script src="scripts/functions/settings.js"></script>
     <script src="scripts/functions/messages.js"></script>
     <script src="scripts/functions/page.js"></script>
@@ -16,55 +15,77 @@
 </head>
 
 <body>
-    <fieldset>
-        <legend>Settings</legend>
+    <div class="d-flex flex-column gap-2 m-2"
+         style="width: 400px; height: 500px;">
 
-        <p>
-            <b>Website: </b>
-            <span id="websiteLbl"></span>
-        </p>
+        <h3>Page Settings</h3>
 
-        <p>
         <div>
-            <b>Zoom: </b>
-            <input id="zoomTb" type="text" />
-            %
+            <h6 class="form-label">Website</h6>
+            <input type="text" readonly class="form-control-plaintext" id="websiteLbl">
         </div>
+
         <div>
-            <b>Scroll X: </b>
-            <input id="scrollXTb" type="text" />
+            <h6 class="form-label">Zoom</h6>
+            <div class="input-group">
+                <input type="text" id="zoomTb" class="form-control">
+                <span class="input-group-text">%</span>
+            </div>
         </div>
+
         <div>
-            <b>Scroll Y: </b>
-            <input id="scrollYTb" type="text" />
+            <h6 class="form-label">Scroll Offset</h6>
+            <div class="d-flex flex-row gap-2">
+                <div class="input-group">
+                    <span class="input-group-text">X</span>
+                    <input type="text" id="scrollXTb" class="form-control">
+                    <span class="input-group-text">px</span>
+                </div>
+                <div class="input-group">
+                    <span class="input-group-text">Y</span>
+                    <input type="text" id="scrollYTb" class="form-control">
+                    <span class="input-group-text">px</span>
+                </div>
+            </div>
         </div>
-        <div>
-            <b>Remove Elements: </b>
-            <input id="elementsQueryTb" type="text" />
-            <input id="hideElementsCbx" type="checkbox" />
+
+        <div class="d-flex flex-column flex-grow-1">
+            <h6 class="form-label">Remove Elements</h6>
+            <textarea id="elementsQueryTb"
+                      class="form-control flex-grow-1"
+                      style="resize: none;"></textarea>
         </div>
-        </p>
 
-        <p id="statusLbl"></p>
-    </fieldset>
+        <div id="statusLbl"></div>
 
-    <p>
-        <button id="loadBtn" class="data-button">Load</button>
-        <button id="saveBtn" class="data-button">Save</button>
-        <button id="clearBtn" class="data-button">Clear</button>
-    </p>
+        <div class="d-flex flex-row gap-2 justify-content-end">
+            <button class="btn btn-primary" id="getBtn">Get from current page</button>
+            <button class="btn btn-primary" id="setBtn">Set to current page</button>
+            <button class="btn btn-primary" id="resetBtn">Reset current page</button>
 
-    <p>
-        <button id="getBtn" class="data-button">Get</button>
-        <button id="setBtn" class="data-button">Set</button>
-        <button id="resetBtn" class="data-button">Reset</button>
-    </p>
+            <div class="dropup">
+                <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Save
+                </button>
+                <ul class="dropdown-menu">
+                    <li><button class="dropdown-item" id="loadBtn">Load stored settings</button></li>
+                    <li><button class="dropdown-item" id="saveBtn">Store settings</button></li>
+                    <li><button class="dropdown-item" id="clearBtn">Clear stored settings</button></li>
+                </ul>
+            </div>
 
-    <p>
-        <button id="backupBtn" class="data-button">Backup</button>
-        <button id="restoreBtn" class="data-button">Restore</button>
-        <input id="restoreInput" type="file" class="hidden">
-    </p>
+            <div class="dropup">
+                <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Recovery
+                </button>
+                <ul class="dropdown-menu">
+                    <li><button class="dropdown-item" id="backupBtn">Export all settings</button></li>
+                    <li><button class="dropdown-item" id="restoreBtn">Import all settings</button></li>
+                    <li><input id="restoreInput" type="file" style="display: none;"></li>
+                </ul>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

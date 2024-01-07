@@ -17,7 +17,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     let activeTabInfo = null;
     let settings = createDefaultPageSettings();
     let settingsStatus = SettingsStatus.Unsaved;
-    let websiteLbl;
+    let websiteTb;
     let zoomTb;
     let scrollXTb;
     let scrollYTb;
@@ -33,8 +33,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     let restoreBtn;
     let restoreInput;
     document.addEventListener("DOMContentLoaded", () => __awaiter(this, void 0, void 0, function* () {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p;
-        websiteLbl = document.querySelector("#websiteLbl");
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o;
+        websiteTb = document.querySelector("#websiteLbl");
         statusLbl = document.querySelector("#statusLbl");
         (_a = (zoomTb = document.querySelector("#zoomTb"))) === null || _a === void 0 ? void 0 : _a.addEventListener("input", tb_input);
         (_b = (scrollXTb = document.querySelector("#scrollXTb"))) === null || _b === void 0 ? void 0 : _b.addEventListener("input", tb_input);
@@ -182,7 +182,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     function setSettingsToUI() {
         var _a, _b;
         updateStatusLbl();
-        websiteLbl.innerHTML = (_a = activeTabInfo === null || activeTabInfo === void 0 ? void 0 : activeTabInfo.host) !== null && _a !== void 0 ? _a : "unknown";
+        websiteTb.value = (_a = activeTabInfo === null || activeTabInfo === void 0 ? void 0 : activeTabInfo.host) !== null && _a !== void 0 ? _a : "unknown";
         zoomTb.value = isNaN(settings.zoomFactor) || settings.zoomFactor === null ? "-" : String(settings.zoomFactor * 100);
         scrollXTb.value = isNaN(settings.scrollX) || settings.scrollX == null ? "-" : String(settings.scrollX);
         scrollYTb.value = isNaN(settings.scrollY) || settings.scrollY == null ? "-" : String(settings.scrollY);

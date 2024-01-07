@@ -9,7 +9,7 @@
     let settings: PageSettings = createDefaultPageSettings();
     let settingsStatus: SettingsStatus = SettingsStatus.Unsaved;
 
-    let websiteLbl: HTMLSpanElement;
+    let websiteTb: HTMLInputElement;
     let zoomTb: HTMLInputElement;
     let scrollXTb: HTMLInputElement;
     let scrollYTb: HTMLInputElement;
@@ -26,7 +26,7 @@
     let restoreInput: HTMLInputElement;
 
     document.addEventListener("DOMContentLoaded", async () => {
-        websiteLbl = <HTMLSpanElement>document.querySelector("#websiteLbl");
+        websiteTb = <HTMLInputElement>document.querySelector("#websiteLbl");
         statusLbl = <HTMLParagraphElement>document.querySelector("#statusLbl");
         (zoomTb = <HTMLInputElement>document.querySelector("#zoomTb"))?.addEventListener("input", tb_input);
         (scrollXTb = <HTMLInputElement>document.querySelector("#scrollXTb"))?.addEventListener("input", tb_input);
@@ -195,7 +195,7 @@
 
     function setSettingsToUI() {
         updateStatusLbl();
-        websiteLbl.innerHTML = activeTabInfo?.host ?? "unknown";
+        websiteTb.value = activeTabInfo?.host ?? "unknown";
         zoomTb.value = isNaN(settings.zoomFactor) || settings.zoomFactor === null ? "-" : String(settings.zoomFactor * 100);
         scrollXTb.value = isNaN(settings.scrollX) || settings.scrollX == null ? "-" : String(settings.scrollX);
         scrollYTb.value = isNaN(settings.scrollY) || settings.scrollY == null ? "-" : String(settings.scrollY);
