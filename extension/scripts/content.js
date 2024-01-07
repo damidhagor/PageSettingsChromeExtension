@@ -45,7 +45,7 @@
         const query = settings.elements;
         console.log("Hide query: " + query);
         elements = null;
-        if (query !== null) {
+        if (query !== null && query !== "") {
             elements = document.querySelectorAll(query);
             elements.forEach(e => e.style.display = "none");
         }
