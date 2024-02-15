@@ -17,8 +17,7 @@ function isPageSettings(obj: any): obj is PageSettings {
     return "zoomFactor" in obj
         && "scrollX" in obj
         && "scrollY" in obj
-        && "elements" in obj
-        && "elementsHidden" in obj;
+        && "elements" in obj;
 }
 
 function isVersionedPageSettings(obj: any): obj is VersionedPageSettings {
