@@ -65,23 +65,25 @@
                 <button class="btn btn-primary" id="setBtn">Set</button>
                 <button class="btn btn-primary" id="resetBtn">Reset</button>
 
-                <div class="dropup ms-auto">
-                    <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <div class="btn-group dropup ms-auto">
+                    <button class="btn btn-primary" id="saveBtn1">
                         <i class="bi bi-floppy"></i>
                     </button>
+                    <button class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false"></button>
                     <ul class="dropdown-menu">
-                        <li><button class="dropdown-item" id="saveBtn">Store settings</button></li>
+                        <li><button class="dropdown-item" id="saveBtn2">Store settings</button></li>
                         <li><button class="dropdown-item" id="loadBtn">Load stored settings</button></li>
                         <li><button class="dropdown-item" id="clearBtn">Clear stored settings</button></li>
                     </ul>
                 </div>
 
-                <div class="dropup">
-                    <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <div class="btn-group dropup">
+                    <button class="btn btn-primary" id="backupBtn1">
                         <i class="bi bi-download"></i>
                     </button>
+                    <button class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false"></button>
                     <ul class="dropdown-menu">
-                        <li><button class="dropdown-item" id="backupBtn">Export all settings</button></li>
+                        <li><button class="dropdown-item" id="backupBtn2">Export all settings</button></li>
                         <li><button class="dropdown-item" id="restoreBtn">Import all settings</button></li>
                         <li><input id="restoreInput" type="file" style="display: none;"></li>
                     </ul>

@@ -16,12 +16,14 @@
     let elementsQueryTb: HTMLInputElement;
     let statusLbl: HTMLParagraphElement;
     let loadBtn: HTMLButtonElement;
-    let saveBtn: HTMLButtonElement;
+    let saveBtn1: HTMLButtonElement;
+    let saveBtn2: HTMLButtonElement;
     let clearBtn: HTMLButtonElement;
     let getBtn: HTMLButtonElement;
     let setBtn: HTMLButtonElement;
     let resetBtn: HTMLButtonElement;
-    let backupBtn: HTMLButtonElement;
+    let backupBtn1: HTMLButtonElement;
+    let backupBtn2: HTMLButtonElement;
     let restoreBtn: HTMLButtonElement;
     let restoreInput: HTMLInputElement;
 
@@ -33,12 +35,14 @@
         (scrollYTb = <HTMLInputElement>document.querySelector("#scrollYTb"))?.addEventListener("input", tb_input);
         (elementsQueryTb = <HTMLInputElement>document.querySelector("#elementsQueryTb"))?.addEventListener("input", tb_input);
         (loadBtn = <HTMLButtonElement>document.querySelector("#loadBtn"))?.addEventListener("click", loadBtn_click);
-        (saveBtn = <HTMLButtonElement>document.querySelector("#saveBtn"))?.addEventListener("click", saveBtn_click);
+        (saveBtn1 = <HTMLButtonElement>document.querySelector("#saveBtn1"))?.addEventListener("click", saveBtn_click);
+        (saveBtn2 = <HTMLButtonElement>document.querySelector("#saveBtn2"))?.addEventListener("click", saveBtn_click);
         (clearBtn = <HTMLButtonElement>document.querySelector("#clearBtn"))?.addEventListener("click", clearBtn_click);
         (getBtn = <HTMLButtonElement>document.querySelector("#getBtn"))?.addEventListener("click", getBtn_click);
         (setBtn = <HTMLButtonElement>document.querySelector("#setBtn"))?.addEventListener("click", setBtn_click);
         (resetBtn = <HTMLButtonElement>document.querySelector("#resetBtn"))?.addEventListener("click", resetBtn_click);
-        (backupBtn = <HTMLButtonElement>document.querySelector("#backupBtn"))?.addEventListener("click", backupBtn_click);
+        (backupBtn1 = <HTMLButtonElement>document.querySelector("#backupBtn1"))?.addEventListener("click", backupBtn_click);
+        (backupBtn2 = <HTMLButtonElement>document.querySelector("#backupBtn2"))?.addEventListener("click", backupBtn_click);
         (restoreBtn = <HTMLButtonElement>document.querySelector("#restoreBtn"))?.addEventListener("click", restoreBtn_click);
         (restoreInput = <HTMLInputElement>document.querySelector("#restoreInput"))?.addEventListener("change", restoreInput_change);
 
@@ -200,7 +204,8 @@
         scrollXTb.value = isNaN(settings.scrollX) || settings.scrollX == null ? "-" : String(settings.scrollX);
         scrollYTb.value = isNaN(settings.scrollY) || settings.scrollY == null ? "-" : String(settings.scrollY);
         elementsQueryTb.value = settings.elements ?? "";
-        saveBtn.disabled = !isHostnameValid(activeTabInfo?.host);
+        saveBtn1.disabled = !isHostnameValid(activeTabInfo?.host);
+        saveBtn2.disabled = !isHostnameValid(activeTabInfo?.host);
     }
 
     function updateStatusLbl() {

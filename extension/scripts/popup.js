@@ -24,16 +24,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     let elementsQueryTb;
     let statusLbl;
     let loadBtn;
-    let saveBtn;
+    let saveBtn1;
+    let saveBtn2;
     let clearBtn;
     let getBtn;
     let setBtn;
     let resetBtn;
-    let backupBtn;
+    let backupBtn1;
+    let backupBtn2;
     let restoreBtn;
     let restoreInput;
     document.addEventListener("DOMContentLoaded", () => __awaiter(this, void 0, void 0, function* () {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
         websiteTb = document.querySelector("#websiteLbl");
         statusLbl = document.querySelector("#statusLbl");
         (_a = (zoomTb = document.querySelector("#zoomTb"))) === null || _a === void 0 ? void 0 : _a.addEventListener("input", tb_input);
@@ -41,14 +43,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         (_c = (scrollYTb = document.querySelector("#scrollYTb"))) === null || _c === void 0 ? void 0 : _c.addEventListener("input", tb_input);
         (_d = (elementsQueryTb = document.querySelector("#elementsQueryTb"))) === null || _d === void 0 ? void 0 : _d.addEventListener("input", tb_input);
         (_e = (loadBtn = document.querySelector("#loadBtn"))) === null || _e === void 0 ? void 0 : _e.addEventListener("click", loadBtn_click);
-        (_f = (saveBtn = document.querySelector("#saveBtn"))) === null || _f === void 0 ? void 0 : _f.addEventListener("click", saveBtn_click);
-        (_g = (clearBtn = document.querySelector("#clearBtn"))) === null || _g === void 0 ? void 0 : _g.addEventListener("click", clearBtn_click);
-        (_h = (getBtn = document.querySelector("#getBtn"))) === null || _h === void 0 ? void 0 : _h.addEventListener("click", getBtn_click);
-        (_j = (setBtn = document.querySelector("#setBtn"))) === null || _j === void 0 ? void 0 : _j.addEventListener("click", setBtn_click);
-        (_k = (resetBtn = document.querySelector("#resetBtn"))) === null || _k === void 0 ? void 0 : _k.addEventListener("click", resetBtn_click);
-        (_l = (backupBtn = document.querySelector("#backupBtn"))) === null || _l === void 0 ? void 0 : _l.addEventListener("click", backupBtn_click);
-        (_m = (restoreBtn = document.querySelector("#restoreBtn"))) === null || _m === void 0 ? void 0 : _m.addEventListener("click", restoreBtn_click);
-        (_o = (restoreInput = document.querySelector("#restoreInput"))) === null || _o === void 0 ? void 0 : _o.addEventListener("change", restoreInput_change);
+        (_f = (saveBtn1 = document.querySelector("#saveBtn1"))) === null || _f === void 0 ? void 0 : _f.addEventListener("click", saveBtn_click);
+        (_g = (saveBtn2 = document.querySelector("#saveBtn2"))) === null || _g === void 0 ? void 0 : _g.addEventListener("click", saveBtn_click);
+        (_h = (clearBtn = document.querySelector("#clearBtn"))) === null || _h === void 0 ? void 0 : _h.addEventListener("click", clearBtn_click);
+        (_j = (getBtn = document.querySelector("#getBtn"))) === null || _j === void 0 ? void 0 : _j.addEventListener("click", getBtn_click);
+        (_k = (setBtn = document.querySelector("#setBtn"))) === null || _k === void 0 ? void 0 : _k.addEventListener("click", setBtn_click);
+        (_l = (resetBtn = document.querySelector("#resetBtn"))) === null || _l === void 0 ? void 0 : _l.addEventListener("click", resetBtn_click);
+        (_m = (backupBtn1 = document.querySelector("#backupBtn1"))) === null || _m === void 0 ? void 0 : _m.addEventListener("click", backupBtn_click);
+        (_o = (backupBtn2 = document.querySelector("#backupBtn2"))) === null || _o === void 0 ? void 0 : _o.addEventListener("click", backupBtn_click);
+        (_p = (restoreBtn = document.querySelector("#restoreBtn"))) === null || _p === void 0 ? void 0 : _p.addEventListener("click", restoreBtn_click);
+        (_q = (restoreInput = document.querySelector("#restoreInput"))) === null || _q === void 0 ? void 0 : _q.addEventListener("change", restoreInput_change);
         chrome.runtime.onMessage.addListener((request, sender, sendResponse) => __awaiter(this, void 0, void 0, function* () {
             let result = false;
             const message = request;
@@ -187,7 +191,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         scrollXTb.value = isNaN(settings.scrollX) || settings.scrollX == null ? "-" : String(settings.scrollX);
         scrollYTb.value = isNaN(settings.scrollY) || settings.scrollY == null ? "-" : String(settings.scrollY);
         elementsQueryTb.value = (_b = settings.elements) !== null && _b !== void 0 ? _b : "";
-        saveBtn.disabled = !isHostnameValid(activeTabInfo === null || activeTabInfo === void 0 ? void 0 : activeTabInfo.host);
+        saveBtn1.disabled = !isHostnameValid(activeTabInfo === null || activeTabInfo === void 0 ? void 0 : activeTabInfo.host);
+        saveBtn2.disabled = !isHostnameValid(activeTabInfo === null || activeTabInfo === void 0 ? void 0 : activeTabInfo.host);
     }
     function updateStatusLbl() {
         const saved = settingsStatus === SettingsStatus.Saved || settingsStatus === SettingsStatus.Changed;
